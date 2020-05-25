@@ -201,7 +201,7 @@ class faPF:
 
     def sample_initial(self, y0, N):
         '''
-        Sample from p(x0 | y0) using basic MH-MCMC
+        Sample from p(x0 | y0) 
         Args:
             y0 (torch.tensor): (B,1,m) initial observation
         Returns:

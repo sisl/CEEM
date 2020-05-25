@@ -12,10 +12,39 @@ from ceem import logger
 from ceem.dynamics import (AnalyticDynJacMixin, AnalyticObsJacMixin, DynJacMixin, ObsJacMixin)
 
 
+
 class Criterion:
 
     def __call__(self, model, x, **kwargs):
         return self.forward(model, x, **kwargs)
+
+    def batched_forward(self, model, x, **kwargs):
+        """
+        Forward method for computing criterion, not summed over batch
+        Args:
+            model (DiscreteDynamicalSystem)
+            x (torch.tensor): (B,T,n) system states
+        Returns:
+            y (torch.tensor): (B,) criterion
+        """
+        B,T,n = x.shape
+        y = torch.stack([self(model,
+            x[i:i+1],**kwargs) for i in range(B)])
+        return y
+
+    def batched_sample_forward(self, model, x, **kwargs):
+        """
+        Forward method for computing criterion, not summed over batch
+        Args:
+            model (DiscreteDynamicalSystem)
+            x (torch.tensor): (B,N,T,n) system states
+        Returns:
+            y (torch.tensor): (B,N) criterion
+        """
+        B,N,T,n = x.shape
+        ys = [self.batched_forward(model, x[:,i], **kwargs) for i in range(N)]
+        return torch.stack(ys, dim=1)
+
 
     def forward(self, model, x, **kwargs):
         """
@@ -67,7 +96,7 @@ class GroupCriterion(Criterion):
         self._criteria = criteria
 
     def forward(self, model, x, **kwargs):
-        return sum([c.forward(model, x, **kwargs) for c in self._criteria])
+        return sum([c(model, x, **kwargs) for c in self._criteria])
 
 
 class STRParamCriterion(Criterion):
@@ -163,8 +192,13 @@ class GaussianObservationCriterion(SOSCriterion):
             # assuming diagonal
             self._Sig_y_inv_chol = Sig_y_inv.sqrt().unsqueeze(0).unsqueeze(0)
             self._diagcov = True
-        else:
+        elif Sig_y_inv.ndim == 2:
+            # assuming full
             self._Sig_y_inv_chol = Sig_y_inv.cholesky().unsqueeze(0).unsqueeze(0)
+            self._diagcov = False
+        elif Sig_y_inv.ndim == 3:
+            # assuming full, timevarying
+            self._Sig_y_inv_chol = Sig_y_inv.cholesky().unsqueeze(0)
             self._diagcov = False
 
     def apply_inds(self, x, inds):
@@ -259,6 +293,52 @@ class STRStateCriterion(SOSCriterion):
         else:
             return self._rho * torch.eye(B * T * n).to(dtype=x.dtype).view(B * T * n, B, T, n)
 
+class GaussianX0Criterion(SOSCriterion):
+    """
+    Soft Trust Region on states 
+    """
+
+    def __init__(self, x0, Sig_x0_inv):
+
+        self._size = x0.shape[-1]
+        self._x0 = x0
+        if Sig_x0_inv.ndim == 1:
+            # assuming diagonal
+            self._Sig_x0_inv_chol = Sig_x0_inv.sqrt().unsqueeze(0).unsqueeze(0)
+            self._diagcov = True
+        else:
+            self._Sig_x0_inv_chol = Sig_x0_inv.cholesky().unsqueeze(0).unsqueeze(0)
+            self._diagcov = False
+
+    def residuals(self, model, x, inds=None, flatten=True):
+        err = (x[:,0] - self._x0)
+
+        if self._diagcov:
+            resid = self._Sig_x0_inv_chol * err
+        else:
+            resid = (self._Sig_x0_inv_chol @ err.unsqueeze(-1)).squeeze(-1)
+
+        return resid.view(-1) if flatten else resid
+
+    def jac_resid_x(self, model, x, sparse=False, sparse_format=sp.csr_matrix):
+        B, T, n = x.shape
+
+        if self._diagcov:
+            cov = self._Sig_x0_inv_chol.squeeze().diag()
+        else:
+            cov = self._Sig_x0_inv_chol
+        # cov = cov.unsqueeze(0).repeat(B,1,1)
+
+        retval = torch.zeros(B*n, B, T, n, dtype=x.dtype)
+        for b in range(B):
+            retval[b*n:(b+1)*n,b,0,:] = cov
+        # retval[:,:,0,:] = cov.view(B*n,B,n)
+
+        if sparse:
+            return sparse_format(retval.view(-1,B*T*n).detach().numpy(), dtype=np.float64)
+        else:
+            return retval
+
 
 class GaussianDynamicsCriterion(SOSCriterion):
 
@@ -309,10 +389,10 @@ class GaussianDynamicsCriterion(SOSCriterion):
 
         if self._diagcov:
             jac_resid_x_ = self._Sig_w_inv_chol.unsqueeze(-1) * jac_dyn_x_
-            neyew = -torch.diag_embed(self._Sig_w_inv_chol.squeeze())
+            neyew = -torch.diag_embed(self._Sig_w_inv_chol.view(-1))
         else:
             jac_resid_x_ = self._Sig_w_inv_chol @ jac_dyn_x_
-            neyew = -self._Sig_w_inv_chol.squeeze()
+            neyew = -self._Sig_w_inv_chol.view(-1)
 
         J = jac_resid_x_.detach()
 
