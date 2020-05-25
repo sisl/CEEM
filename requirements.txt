@@ -1,0 +1,8 @@
+torch>=1.2
+matplotlib>=3.0.1
+numpy>=1.14.5
+termcolor==1.1.0
+typing==3.6.4
+scipy==1.2.1
+python_dateutil==2.8.0
+tensorboard
