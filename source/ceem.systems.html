@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ceem.systems package &#8212; CE-EM  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="ceem-systems-package">
+<h1>ceem.systems package<a class="headerlink" href="#ceem-systems-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ceem.systems.discretelinear">
+<span id="ceem-systems-discretelinear-module"></span><h2>ceem.systems.discretelinear module<a class="headerlink" href="#module-ceem.systems.discretelinear" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.systems.discretelinear.DiscreteLinear">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.systems.discretelinear.</code><code class="sig-name descname">DiscreteLinear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xdim</span></em>, <em class="sig-param"><span class="n">udim</span></em>, <em class="sig-param"><span class="n">ydim</span></em>, <em class="sig-param"><span class="n">A</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">B</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">C</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">D</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">obsModel</span><span class="o">=</span><span class="default_value">{'activation': 'tanh', 'gain': 0.5, 'hidden_sizes': [32, 32], 'ln': False}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#DiscreteLinear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.DiscreteLinear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ceem.html#ceem.dynamics.DiscreteDynamicalSystem" title="ceem.dynamics.DiscreteDynamicalSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.DiscreteDynamicalSystem</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code>, <a class="reference internal" href="ceem.html#ceem.dynamics.AnalyticDynJacMixin" title="ceem.dynamics.AnalyticDynJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.AnalyticDynJacMixin</span></code></a>, <a class="reference internal" href="ceem.html#ceem.dynamics.ObsJacMixin" title="ceem.dynamics.ObsJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.ObsJacMixin</span></code></a></p>
+<p>Discrete dynamical system with linear dynamics and linear or non-linear observation model.</p>
+<dl class="py method">
+<dt id="ceem.systems.discretelinear.DiscreteLinear.jac_step_theta">
+<code class="sig-name descname">jac_step_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#DiscreteLinear.jac_step_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.DiscreteLinear.jac_step_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of step at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_x_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.discretelinear.DiscreteLinear.jac_step_x">
+<code class="sig-name descname">jac_step_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#DiscreteLinear.jac_step_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.DiscreteLinear.jac_step_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of step at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_x_t (torch.tensor): (B, T, n, n) shaped jacobian of the next state</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.discretelinear.DiscreteLinear.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#DiscreteLinear.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.DiscreteLinear.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y_t</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.discretelinear.DiscreteLinear.step">
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#DiscreteLinear.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.DiscreteLinear.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next x_{t+1}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.IntTensor</em>) – (B, T,) shaped time</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) shaped next system states</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>x_next (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.systems.discretelinear.DynamicsModule">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.systems.discretelinear.</code><code class="sig-name descname">DynamicsModule</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">A</span></em>, <em class="sig-param"><span class="n">B</span></em>, <em class="sig-param"><span class="n">xdim</span></em>, <em class="sig-param"><span class="n">udim</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#DynamicsModule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.DynamicsModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dl class="py method">
+<dt id="ceem.systems.discretelinear.DynamicsModule.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#DynamicsModule.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.DynamicsModule.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.systems.discretelinear.ObservationModule">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.systems.discretelinear.</code><code class="sig-name descname">ObservationModule</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">C</span></em>, <em class="sig-param"><span class="n">D</span></em>, <em class="sig-param"><span class="n">obsModel</span></em>, <em class="sig-param"><span class="n">xdim</span></em>, <em class="sig-param"><span class="n">udim</span></em>, <em class="sig-param"><span class="n">ydim</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#ObservationModule"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.ObservationModule" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dl class="py method">
+<dt id="ceem.systems.discretelinear.ObservationModule.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/discretelinear.html#ObservationModule.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.discretelinear.ObservationModule.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.systems.lorenzattractor">
+<span id="ceem-systems-lorenzattractor-module"></span><h2>ceem.systems.lorenzattractor module<a class="headerlink" href="#module-ceem.systems.lorenzattractor" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.systems.lorenzattractor.LorenzAttractor">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.systems.lorenzattractor.</code><code class="sig-name descname">LorenzAttractor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigma</span></em>, <em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">beta</span></em>, <em class="sig-param"><span class="n">C</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'midpoint'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzattractor.html#LorenzAttractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzattractor.LorenzAttractor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ceem.html#ceem.dynamics.C2DSystem" title="ceem.dynamics.C2DSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.C2DSystem</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code>, <a class="reference internal" href="ceem.html#ceem.dynamics.AnalyticObsJacMixin" title="ceem.dynamics.AnalyticObsJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.AnalyticObsJacMixin</span></code></a>, <a class="reference internal" href="ceem.html#ceem.dynamics.DynJacMixin" title="ceem.dynamics.DynJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.DynJacMixin</span></code></a></p>
+<p>Basic Lorenz Attractor</p>
+<dl class="py method">
+<dt id="ceem.systems.lorenzattractor.LorenzAttractor.jac_obs_theta">
+<code class="sig-name descname">jac_obs_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzattractor.html#LorenzAttractor.jac_obs_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzattractor.LorenzAttractor.jac_obs_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt theta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.lorenzattractor.LorenzAttractor.jac_obs_x">
+<code class="sig-name descname">jac_obs_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzattractor.html#LorenzAttractor.jac_obs_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzattractor.LorenzAttractor.jac_obs_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (torch.tensor): (B, T, m, n) shaped jacobian of the observation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.lorenzattractor.LorenzAttractor.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzattractor.html#LorenzAttractor.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzattractor.LorenzAttractor.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y_t</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.lorenzattractor.LorenzAttractor.step_derivs">
+<code class="sig-name descname">step_derivs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzattractor.html#LorenzAttractor.step_derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzattractor.LorenzAttractor.step_derivs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns xdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system state derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.systems.lorenzattractor.default_lorenz_attractor">
+<code class="sig-prename descclassname">ceem.systems.lorenzattractor.</code><code class="sig-name descname">default_lorenz_attractor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">obsdif</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">0.04</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzattractor.html#default_lorenz_attractor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzattractor.default_lorenz_attractor" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.systems.lorenzattractor.main">
+<code class="sig-prename descclassname">ceem.systems.lorenzattractor.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzattractor.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzattractor.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.systems.lorenzsystem">
+<span id="ceem-systems-lorenzsystem-module"></span><h2>ceem.systems.lorenzsystem module<a class="headerlink" href="#module-ceem.systems.lorenzsystem" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.systems.lorenzsystem.LorenzSystem">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.systems.lorenzsystem.</code><code class="sig-name descname">LorenzSystem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sigmas</span></em>, <em class="sig-param"><span class="n">rhos</span></em>, <em class="sig-param"><span class="n">betas</span></em>, <em class="sig-param"><span class="n">H</span></em>, <em class="sig-param"><span class="n">C</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'midpoint'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzsystem.html#LorenzSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzsystem.LorenzSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ceem.html#ceem.dynamics.C2DSystem" title="ceem.dynamics.C2DSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.C2DSystem</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code>, <a class="reference internal" href="ceem.html#ceem.dynamics.AnalyticObsJacMixin" title="ceem.dynamics.AnalyticObsJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.AnalyticObsJacMixin</span></code></a>, <a class="reference internal" href="ceem.html#ceem.dynamics.DynJacMixin" title="ceem.dynamics.DynJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.DynJacMixin</span></code></a></p>
+<p>Basic Lorenz Attractor</p>
+<dl class="py method">
+<dt id="ceem.systems.lorenzsystem.LorenzSystem.jac_obs_theta">
+<code class="sig-name descname">jac_obs_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzsystem.html#LorenzSystem.jac_obs_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzsystem.LorenzSystem.jac_obs_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt theta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.lorenzsystem.LorenzSystem.jac_obs_x">
+<code class="sig-name descname">jac_obs_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzsystem.html#LorenzSystem.jac_obs_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzsystem.LorenzSystem.jac_obs_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (torch.tensor): (B, T, m, n) shaped jacobian of the observation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.lorenzsystem.LorenzSystem.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzsystem.html#LorenzSystem.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzsystem.LorenzSystem.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y_t</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.lorenzsystem.LorenzSystem.step_derivs">
+<code class="sig-name descname">step_derivs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzsystem.html#LorenzSystem.step_derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzsystem.LorenzSystem.step_derivs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns xdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system state derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.systems.lorenzsystem.default_lorenz_system">
+<code class="sig-prename descclassname">ceem.systems.lorenzsystem.</code><code class="sig-name descname">default_lorenz_system</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">4</span></em>, <em class="sig-param"><span class="n">obsdif</span><span class="o">=</span><span class="default_value">2</span></em>, <em class="sig-param"><span class="n">dt</span><span class="o">=</span><span class="default_value">0.04</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/lorenzsystem.html#default_lorenz_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.lorenzsystem.default_lorenz_system" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.systems.maglev">
+<span id="ceem-systems-maglev-module"></span><h2>ceem.systems.maglev module<a class="headerlink" href="#module-ceem.systems.maglev" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.systems.maglev.MagLev">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.systems.maglev.</code><code class="sig-name descname">MagLev</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mg</span></em>, <em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'midpoint'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/maglev.html#MagLev"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.maglev.MagLev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ceem.html#ceem.dynamics.C2DSystem" title="ceem.dynamics.C2DSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.C2DSystem</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code>, <a class="reference internal" href="ceem.html#ceem.dynamics.AnalyticObsJacMixin" title="ceem.dynamics.AnalyticObsJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.AnalyticObsJacMixin</span></code></a>, <a class="reference internal" href="ceem.html#ceem.dynamics.DynJacMixin" title="ceem.dynamics.DynJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.DynJacMixin</span></code></a></p>
+<p>Simple pendulum, where y = [cos th, sin th]</p>
+<dl class="py method">
+<dt id="ceem.systems.maglev.MagLev.jac_obs_x">
+<code class="sig-name descname">jac_obs_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/maglev.html#MagLev.jac_obs_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.maglev.MagLev.jac_obs_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (torch.tensor): (B, T, m, n) shaped jacobian of the observation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.maglev.MagLev.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/maglev.html#MagLev.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.maglev.MagLev.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y_t</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.maglev.MagLev.step_derivs">
+<code class="sig-name descname">step_derivs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/maglev.html#MagLev.step_derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.maglev.MagLev.step_derivs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns xdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system state derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.systems.springmassdamper">
+<span id="ceem-systems-springmassdamper-module"></span><h2>ceem.systems.springmassdamper module<a class="headerlink" href="#module-ceem.systems.springmassdamper" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.systems.springmassdamper.SpringMassDamper">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.systems.springmassdamper.</code><code class="sig-name descname">SpringMassDamper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">M</span></em>, <em class="sig-param"><span class="n">D</span></em>, <em class="sig-param"><span class="n">K</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'midpoint'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/springmassdamper.html#SpringMassDamper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.springmassdamper.SpringMassDamper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="ceem.html#ceem.dynamics.KinoDynamicalSystem" title="ceem.dynamics.KinoDynamicalSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.KinoDynamicalSystem</span></code></a>, <a class="reference internal" href="ceem.html#ceem.dynamics.C2DSystem" title="ceem.dynamics.C2DSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.C2DSystem</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code>, <a class="reference internal" href="ceem.html#ceem.dynamics.DynJacMixin" title="ceem.dynamics.DynJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.DynJacMixin</span></code></a>, <a class="reference internal" href="ceem.html#ceem.dynamics.AnalyticObsJacMixin" title="ceem.dynamics.AnalyticObsJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.AnalyticObsJacMixin</span></code></a></p>
+<p>Generalized Spring Mass Damper System</p>
+<dl class="py method">
+<dt id="ceem.systems.springmassdamper.SpringMassDamper.dynamics">
+<code class="sig-name descname">dynamics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/springmassdamper.html#SpringMassDamper.dynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.springmassdamper.SpringMassDamper.dynamics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns qdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>q</strong> (<em>torch.tensor</em>) – (B, T, qn) shaped system generalized coordinates</p></li>
+<li><p><strong>v</strong> (<em>torch.tensor</em>) – (B, T, vn) shaped system generalized velocities</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system gen. velocity derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>vdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.springmassdamper.SpringMassDamper.jac_obs_theta">
+<code class="sig-name descname">jac_obs_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/springmassdamper.html#SpringMassDamper.jac_obs_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.springmassdamper.SpringMassDamper.jac_obs_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt theta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.springmassdamper.SpringMassDamper.jac_obs_x">
+<code class="sig-name descname">jac_obs_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/springmassdamper.html#SpringMassDamper.jac_obs_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.springmassdamper.SpringMassDamper.jac_obs_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (torch.tensor): (B, T, m, n) shaped jacobian of the observation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.springmassdamper.SpringMassDamper.kinematics">
+<code class="sig-name descname">kinematics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/springmassdamper.html#SpringMassDamper.kinematics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.springmassdamper.SpringMassDamper.kinematics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns qdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>q</strong> (<em>torch.tensor</em>) – (B, T, qn) shaped system generalized coordinates</p></li>
+<li><p><strong>v</strong> (<em>torch.tensor</em>) – (B, T, vn) shaped system generalized velocities</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system gen. coordinate derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.systems.springmassdamper.SpringMassDamper.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/springmassdamper.html#SpringMassDamper.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.springmassdamper.SpringMassDamper.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y_t</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.systems.springmassdamper.main">
+<code class="sig-prename descclassname">ceem.systems.springmassdamper.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/systems/springmassdamper.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.systems.springmassdamper.main" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.systems">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ceem.systems" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">CE-EM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Stanford Intelligent Systems Laboratory (SISL).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/source/ceem.systems.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

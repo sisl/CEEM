@@ -1,0 +1,505 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ceem.dynamics &#8212; CE-EM  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ceem.dynamics</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># File: dynamics.py</span>
+<span class="c1">#</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
+
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="kn">from</span> <span class="nn">.odesolver</span> <span class="kn">import</span> <span class="n">odestep</span>
+
+<span class="c1"># DynamicalSystems</span>
+
+
+<div class="viewcode-block" id="DiscreteDynamicalSystem"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.DiscreteDynamicalSystem">[docs]</a><span class="k">class</span> <span class="nc">DiscreteDynamicalSystem</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DiscreteDynamicalSystem.step"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.DiscreteDynamicalSystem.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns next x_{t+1}</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t (torch.IntTensor): (B, T,) shaped time</span>
+<span class="sd">            x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">            u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            x_next (torch.tensor): (B, T, n) shaped next system states</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="DiscreteDynamicalSystem.observe"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.DiscreteDynamicalSystem.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns y_t&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xdim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;system state dimensions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xdim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">udim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;system input dimension</span>
+<span class="sd">        returns None if unactuated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_udim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ydim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;system observation dimension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ydim</span></div>
+
+
+<div class="viewcode-block" id="ContinuousDynamicalSystem"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.ContinuousDynamicalSystem">[docs]</a><span class="k">class</span> <span class="nc">ContinuousDynamicalSystem</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ContinuousDynamicalSystem.step_derivs"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.ContinuousDynamicalSystem.step_derivs">[docs]</a>    <span class="k">def</span> <span class="nf">step_derivs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns xdot_t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">            x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">            u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            xdot (torch.tensor): (B, T, n) system state derivatives</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="ContinuousDynamicalSystem.observe"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.ContinuousDynamicalSystem.observe">[docs]</a>    <span class="k">def</span> <span class="nf">observe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns y_t&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xdim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;system state dimensions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xdim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">udim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;system input dimension</span>
+<span class="sd">        returns None if unactuated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_udim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ydim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;system observation dimension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ydim</span></div>
+
+
+<div class="viewcode-block" id="KinoDynamicalSystem"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.KinoDynamicalSystem">[docs]</a><span class="k">class</span> <span class="nc">KinoDynamicalSystem</span><span class="p">(</span><span class="n">ContinuousDynamicalSystem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="KinoDynamicalSystem.step_derivs"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.KinoDynamicalSystem.step_derivs">[docs]</a>    <span class="k">def</span> <span class="nf">step_derivs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns xdot_t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">            x (torch.tensor): (B, T, qn+vn) shaped system states</span>
+<span class="sd">            u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            xdot (torch.tensor): (B, T, n) system state derivatives</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">q</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">qdim</span><span class="p">]</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">qdim</span><span class="p">:]</span>
+
+        <span class="n">qdot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kinematics</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+        <span class="n">vdot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dynamics</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="n">xdot</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">qdot</span><span class="p">,</span> <span class="n">vdot</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">xdot</span></div>
+
+<div class="viewcode-block" id="KinoDynamicalSystem.kinematics"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.KinoDynamicalSystem.kinematics">[docs]</a>    <span class="k">def</span> <span class="nf">kinematics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns qdot_t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">            q (torch.tensor): (B, T, qn) shaped system generalized coordinates</span>
+<span class="sd">            v (torch.tensor): (B, T, vn) shaped system generalized velocities</span>
+<span class="sd">            u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            qdot (torch.tensor): (B, T, n) system gen. coordinate derivatives</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="KinoDynamicalSystem.dynamics"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.KinoDynamicalSystem.dynamics">[docs]</a>    <span class="k">def</span> <span class="nf">dynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns qdot_t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">            q (torch.tensor): (B, T, qn) shaped system generalized coordinates</span>
+<span class="sd">            v (torch.tensor): (B, T, vn) shaped system generalized velocities</span>
+<span class="sd">            u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            vdot (torch.tensor): (B, T, n) system gen. velocity derivatives</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">qdim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_qdim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">vdim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vdim</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">xdim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">qdim</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">vdim</span></div>
+
+
+<div class="viewcode-block" id="C2DSystem"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.C2DSystem">[docs]</a><span class="k">class</span> <span class="nc">C2DSystem</span><span class="p">(</span><span class="n">DiscreteDynamicalSystem</span><span class="p">,</span> <span class="n">ContinuousDynamicalSystem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Continuous to Discrete System</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">transforms</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            csys (ContinuousTimeSystem): continuous-time system</span>
+<span class="sd">            dt (float): time-step</span>
+<span class="sd">            method (str): see ceem/odesolver.py SOLVERS for options</span>
+<span class="sd">            transforms (tuple)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dt</span> <span class="o">=</span> <span class="n">dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span> <span class="o">=</span> <span class="n">transforms</span>
+
+<div class="viewcode-block" id="C2DSystem.step"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.C2DSystem.step">[docs]</a>    <span class="k">def</span> <span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="n">odestep</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step_derivs</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dt</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="n">u</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_method</span><span class="p">,</span>
+                     <span class="n">transforms</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_transforms</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">nx</span></div></div>
+
+
+<div class="viewcode-block" id="ObsJacMixin"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.ObsJacMixin">[docs]</a><span class="k">class</span> <span class="nc">ObsJacMixin</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for computing jacobians of observations.</span>
+<span class="sd">    Defaults to using autograd.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ObsJacMixin.jac_obs_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.ObsJacMixin.jac_obs_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_obs_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of observation wrt x</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_y_t (torch.tensor): (B, T, ydim, n) shaped jacobian of the observation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ydim</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="n">jac_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">x</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">)],</span>
+            <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">jac_x</span></div>
+
+<div class="viewcode-block" id="ObsJacMixin.jac_obs_u"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.ObsJacMixin.jac_obs_u">[docs]</a>    <span class="k">def</span> <span class="nf">jac_obs_u</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of observation wrt u</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_y_t (torch.tensor): (B, T, ydim, m) shaped jacobian of the observation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ydim</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="n">jac_u</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">u</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">p</span><span class="p">)],</span>
+            <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">jac_u</span></div>
+
+<div class="viewcode-block" id="ObsJacMixin.jac_obs_theta"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.ObsJacMixin.jac_obs_theta">[docs]</a>    <span class="k">def</span> <span class="nf">jac_obs_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of observation wrt theta</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_y_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO - hopefully we bypass ever explicitly calling this</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="DynJacMixin"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.DynJacMixin">[docs]</a><span class="k">class</span> <span class="nc">DynJacMixin</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for computing jacobians of dynamics.</span>
+<span class="sd">    Defaults to using autograd.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DynJacMixin.jac_step_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.DynJacMixin.jac_step_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_step_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of step at time t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_x_t (torch.tensor): (B, T, n, n) shaped jacobian of the next state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdim</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">nx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="n">jac_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">nx</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">x</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)],</span>
+            <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">jac_x</span></div>
+
+<div class="viewcode-block" id="DynJacMixin.jac_step_u"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.DynJacMixin.jac_step_u">[docs]</a>    <span class="k">def</span> <span class="nf">jac_step_u</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of step at time t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_u (torch.tensor): (B, T, n, m) shaped jacobian of the next state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xdim</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">nx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="n">jac_u</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">autograd</span><span class="o">.</span><span class="n">grad</span><span class="p">(</span><span class="n">nx</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(),</span> <span class="n">u</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">)],</span>
+            <span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">jac_u</span></div>
+
+<div class="viewcode-block" id="DynJacMixin.jac_step_theta"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.DynJacMixin.jac_step_theta">[docs]</a>    <span class="k">def</span> <span class="nf">jac_step_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of step at time t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_x_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">nx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+        <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">jacobians</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">([(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">()])</span>
+
+        <span class="k">for</span> <span class="n">iB</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">iT</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">iN</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+                    <span class="n">nx</span><span class="p">[</span><span class="n">iB</span><span class="p">,</span> <span class="n">iT</span><span class="p">,</span> <span class="n">iN</span><span class="p">]</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_parameters</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">param</span><span class="o">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">jacobians</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">jacobians</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="o">*</span><span class="n">param</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+                            <span class="n">jacobians</span><span class="p">[</span><span class="n">name</span><span class="p">][</span><span class="n">iB</span><span class="p">,</span> <span class="n">iT</span><span class="p">,</span> <span class="n">iN</span><span class="p">]</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">grad</span>
+        <span class="k">return</span> <span class="n">jacobians</span></div></div>
+
+
+<div class="viewcode-block" id="AnalyticObsJacMixin"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.AnalyticObsJacMixin">[docs]</a><span class="k">class</span> <span class="nc">AnalyticObsJacMixin</span><span class="p">(</span><span class="n">ObsJacMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for analytically computing observation jacobains</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AnalyticObsJacMixin.jac_obs_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.AnalyticObsJacMixin.jac_obs_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_obs_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of observation wrt x</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_y_t (torch.tensor): (B, T, m, n) shaped jacobian of the observation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="AnalyticObsJacMixin.jac_obs_theta"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.AnalyticObsJacMixin.jac_obs_theta">[docs]</a>    <span class="k">def</span> <span class="nf">jac_obs_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of observation wrt theta</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_y_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="AnalyticDynJacMixin"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.AnalyticDynJacMixin">[docs]</a><span class="k">class</span> <span class="nc">AnalyticDynJacMixin</span><span class="p">(</span><span class="n">DynJacMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mixin for analytically computing jacobians of dynamics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AnalyticDynJacMixin.jac_step_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.AnalyticDynJacMixin.jac_step_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_step_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of step at time t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_x_t (torch.tensor): (B, T, n, n) shaped jacobian of the next state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="AnalyticDynJacMixin.jac_step_theta"><a class="viewcode-back" href="../../source/ceem.html#ceem.dynamics.AnalyticDynJacMixin.jac_step_theta">[docs]</a>    <span class="k">def</span> <span class="nf">jac_step_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the Jacobian of step at time t</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">           t (torch.tensor): (B, T,) shaped time indices</span>
+<span class="sd">           x (torch.tensor): (B, T, n) shaped system states</span>
+<span class="sd">           u (torch.tensor): (B, T, m) shaped control inputs</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">           jac_x_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO - hopefully we bypass ever explicitly calling this</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">CE-EM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Stanford Intelligent Systems Laboratory (SISL).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

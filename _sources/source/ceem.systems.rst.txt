@@ -1,0 +1,54 @@
+ceem.systems package
+====================
+
+Submodules
+----------
+
+ceem.systems.discretelinear module
+----------------------------------
+
+.. automodule:: ceem.systems.discretelinear
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ceem.systems.lorenzattractor module
+-----------------------------------
+
+.. automodule:: ceem.systems.lorenzattractor
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ceem.systems.lorenzsystem module
+--------------------------------
+
+.. automodule:: ceem.systems.lorenzsystem
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ceem.systems.maglev module
+--------------------------
+
+.. automodule:: ceem.systems.maglev
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+ceem.systems.springmassdamper module
+------------------------------------
+
+.. automodule:: ceem.systems.springmassdamper
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: ceem.systems
+   :members:
+   :undoc-members:
+   :show-inheritance:

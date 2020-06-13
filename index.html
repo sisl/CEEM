@@ -1,0 +1,263 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CE-EM &#8212; CE-EM  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="ce-em">
+<h1>CE-EM<a class="headerlink" href="#ce-em" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>Ensure you are using at least Python 3.6</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">pytest</span></code> to ensure everything works</p>
+</div>
+<div class="section" id="code-overview">
+<h2>Code overview<a class="headerlink" href="#code-overview" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ceem/dynamics.py</span></code> defines the system API used by the CEEM
+algorithm.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ceem/systems/*.py</span></code> define various systems used in the experiments</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ceem/ceem.py</span></code> contains the CEEM algorithm.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ceem/smoother.py</span></code> defines different smoothing routines used by the
+CEEM algorithm in the smoothing step.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ceem/learner.py</span></code> defines different learning routines used by the
+CEEM algorithm in the learning step.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ceem/opt_criteria.py</span></code> defines different optimization criteria used
+by the CEEM algorithm.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ceem/particleem.py</span></code> implements Particle EM</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="experiments">
+<h1>Experiments<a class="headerlink" href="#experiments" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="lorenz">
+<h2>Lorenz<a class="headerlink" href="#lorenz" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="unbiased-estimation-in-deterministic-settings">
+<h2>Unbiased Estimation in Deterministic Settings<a class="headerlink" href="#unbiased-estimation-in-deterministic-settings" title="Permalink to this headline">¶</a></h2>
+<p>To regenerate the data in <code class="docutils literal notranslate"><span class="pre">data/lorenz/bias_experiment</span></code> run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">bias_experiment</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>To generate Table 1 run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">plotting</span><span class="o">/</span><span class="n">process_bias</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="comparison-to-particle-based-methods">
+<h2>Comparison to Particle Based Methods<a class="headerlink" href="#comparison-to-particle-based-methods" title="Permalink to this headline">¶</a></h2>
+<p>To regenerate the data in <code class="docutils literal notranslate"><span class="pre">data/lorenz/comp</span></code> run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">comp_pem</span><span class="o">.</span><span class="n">py</span>
+<span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">comp_ceem</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>To generate Figure 2 run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">plotting</span><span class="o">/</span><span class="n">process_comp</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="convergence-of-ce-em-on-high-dimensional-problems">
+<h2>Convergence of CE-EM on High Dimensional Problems<a class="headerlink" href="#convergence-of-ce-em-on-high-dimensional-problems" title="Permalink to this headline">¶</a></h2>
+<p>To regenerate data in <code class="docutils literal notranslate"><span class="pre">data/lorenz/convergence_experiment</span></code> run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">convergence_experiment_pem</span><span class="o">.</span><span class="n">py</span>
+<span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">convergence_experiment_ceem</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>To generate Figure 3 run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">lorenz</span><span class="o">/</span><span class="n">plotting</span><span class="o">/</span><span class="n">process_convergence</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="helicopter">
+<h2>Helicopter<a class="headerlink" href="#helicopter" title="Permalink to this headline">¶</a></h2>
+<p>The following are scripts for training models in Section 4.2. Pretrained
+models are provided in the <code class="docutils literal notranslate"><span class="pre">pretrained_models</span></code> folder.</p>
+<div class="section" id="data-download">
+<h3>Data download<a class="headerlink" href="#data-download" title="Permalink to this headline">¶</a></h3>
+<p>The dataset used in our experiments can be downloaded by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wget</span> <span class="s1">&#39;https://zenodo.org/record/3662987/files/datasets.zip?download=1&#39;</span> <span class="o">-</span><span class="n">O</span> <span class="n">datasets</span><span class="o">.</span><span class="n">zip</span>
+<span class="n">unzip</span> <span class="n">datasets</span><span class="o">.</span><span class="n">zip</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="baselines">
+<h3>Baselines<a class="headerlink" href="#baselines" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="naive">
+<h4>Naive<a class="headerlink" href="#naive" title="Permalink to this headline">¶</a></h4>
+<p>Run the experiment with default parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">baselines</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">model</span> <span class="n">naive</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="h25">
+<h4>H25<a class="headerlink" href="#h25" title="Permalink to this headline">¶</a></h4>
+<p>Run the experiment with default parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">baselines</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">model</span> <span class="n">H25</span>
+<span class="n">cp</span> <span class="n">data</span><span class="o">/</span><span class="n">h25</span><span class="o">/</span><span class="n">best_net</span><span class="o">.</span><span class="n">th</span> <span class="n">trained_models</span><span class="o">/</span><span class="n">h25</span><span class="o">.</span><span class="n">th</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sid">
+<h4>SID<a class="headerlink" href="#sid" title="Permalink to this headline">¶</a></h4>
+<p>Prepare the data first for residual training:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">data</span><span class="o">/</span><span class="n">naive</span><span class="o">/</span><span class="n">best_net</span><span class="o">.</span><span class="n">th</span> <span class="n">trained_models</span><span class="o">/</span><span class="n">naive_baseline</span><span class="o">.</span><span class="n">th</span>
+<span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">prepare_residual_dataset</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Ensure you have MATLAB with the System Identification Toolbox installed
+then run from within MATLAB:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">run_n4sid</span><span class="o">.</span><span class="n">m</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lstm">
+<h4>LSTM<a class="headerlink" href="#lstm" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">train_lstm</span><span class="o">.</span><span class="n">py</span>
+<span class="n">cp</span> <span class="n">data</span><span class="o">/</span><span class="n">heli_lstm</span><span class="o">/</span><span class="n">ckpts</span><span class="o">/</span><span class="n">best_model</span><span class="o">.</span><span class="n">th</span> <span class="n">trained_models</span><span class="o">/</span><span class="n">lstm</span><span class="o">.</span><span class="n">th</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="nl-ours">
+<h3>NL (Ours)<a class="headerlink" href="#nl-ours" title="Permalink to this headline">¶</a></h3>
+<p>Prepare the data first for residual training:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">data</span><span class="o">/</span><span class="n">naive</span><span class="o">/</span><span class="n">best_net</span><span class="o">.</span><span class="n">th</span> <span class="n">trained_models</span><span class="o">/</span><span class="n">naive_baseline</span><span class="o">.</span><span class="n">th</span>
+<span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">prepare_residual_dataset</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Run the experiment with default parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">ceemnl</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Move the best model to trained_models</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="n">data</span><span class="o">/</span><span class="n">NLobsLdyn</span><span class="o">/</span><span class="n">ckpts</span><span class="o">/</span><span class="n">best_model</span><span class="o">.</span><span class="n">th</span> <span class="n">trained_models</span><span class="o">/</span><span class="n">NL_model</span><span class="o">.</span><span class="n">th</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="evaluating-and-plotting-test-trajectories">
+<h3>Evaluating and plotting test trajectories<a class="headerlink" href="#evaluating-and-plotting-test-trajectories" title="Permalink to this headline">¶</a></h3>
+<p>First evaluate the models (uses pretrained by default) by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">evaluate_models</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">plotting</span><span class="o">/</span><span class="n">plotbar</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Then plot the n th trajectory in the test set by running:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">plotting</span><span class="o">/</span><span class="n">plot_trajectories</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">trajectory</span> <span class="mi">9</span>
+</pre></div>
+</div>
+<p>To plot the circular acceleration prediction (instead of horizontal) on
+the n th trajectory in the test set:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">experiments</span><span class="o">/</span><span class="n">heli</span><span class="o">/</span><span class="n">plotting</span><span class="o">/</span><span class="n">plot_trajectories</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">trajectory</span> <span class="mi">9</span> <span class="o">--</span><span class="n">moments</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
+<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
+<li><p><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p></li>
+</ul>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">CE-EM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Stanford Intelligent Systems Laboratory (SISL).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

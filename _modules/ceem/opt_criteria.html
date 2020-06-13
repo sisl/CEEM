@@ -1,0 +1,652 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ceem.opt_criteria &#8212; CE-EM  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ceem.opt_criteria</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># File: opt_criteria.py</span>
+<span class="c1">#</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sp</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn.functional</span> <span class="k">as</span> <span class="nn">F</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">grad</span>
+<span class="kn">from</span> <span class="nn">torch.nn.utils</span> <span class="kn">import</span> <span class="n">parameters_to_vector</span>
+
+<span class="kn">from</span> <span class="nn">ceem</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">ceem.dynamics</span> <span class="kn">import</span> <span class="p">(</span><span class="n">AnalyticDynJacMixin</span><span class="p">,</span> <span class="n">AnalyticObsJacMixin</span><span class="p">,</span> <span class="n">DynJacMixin</span><span class="p">,</span> <span class="n">ObsJacMixin</span><span class="p">)</span>
+
+
+
+<div class="viewcode-block" id="Criterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.Criterion">[docs]</a><span class="k">class</span> <span class="nc">Criterion</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Criterion.batched_forward"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.Criterion.batched_forward">[docs]</a>    <span class="k">def</span> <span class="nf">batched_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward method for computing criterion, not summed over batch</span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (DiscreteDynamicalSystem)</span>
+<span class="sd">            x (torch.tensor): (B,T,n) system states</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            y (torch.tensor): (B,) criterion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">B</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="bp">self</span><span class="p">(</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">],</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">y</span></div>
+
+<div class="viewcode-block" id="Criterion.batched_sample_forward"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.Criterion.batched_sample_forward">[docs]</a>    <span class="k">def</span> <span class="nf">batched_sample_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward method for computing criterion, not summed over batch</span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (DiscreteDynamicalSystem)</span>
+<span class="sd">            x (torch.tensor): (B,N,T,n) system states</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            y (torch.tensor): (B,N) criterion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">B</span><span class="p">,</span><span class="n">N</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">ys</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">batched_forward</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">ys</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Criterion.forward"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.Criterion.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward method for computing criterion</span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (DiscreteDynamicalSystem)</span>
+<span class="sd">            x (torch.tensor): (B,T,n) system states</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            criterion (torch.tensor): scalar criterion</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="Criterion.jac_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.Criterion.jac_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for computing jacobian of criterion wrt x</span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (DiscreteDynamicalSystem)</span>
+<span class="sd">            x (torch.tensor): (B,T,n) system states</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            jac_x (torch.tensor): (B,T,n) criterion jacobian</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">jac_x</span> <span class="o">=</span> <span class="n">grad</span><span class="p">(</span><span class="n">criterion</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">jac_x</span></div>
+
+<div class="viewcode-block" id="Criterion.jac_theta"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.Criterion.jac_theta">[docs]</a>    <span class="k">def</span> <span class="nf">jac_theta</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for accumulating criterion jacobian on parameters</span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (DiscreteDynamicalSystem)</span>
+<span class="sd">            x (torch.tensor): (B,T,n) system states</span>
+<span class="sd">            return_grad (bool): if True, returns grad else accumulates to leaf nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">grad</span><span class="p">(</span><span class="n">criterion</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">parameters</span><span class="p">(),</span> <span class="n">allow_unused</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="GroupCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GroupCriterion">[docs]</a><span class="k">class</span> <span class="nc">GroupCriterion</span><span class="p">(</span><span class="n">Criterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A group of Criterion</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">criteria</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span> <span class="o">=</span> <span class="n">criteria</span>
+
+<div class="viewcode-block" id="GroupCriterion.forward"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GroupCriterion.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="STRParamCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.STRParamCriterion">[docs]</a><span class="k">class</span> <span class="nc">STRParamCriterion</span><span class="p">(</span><span class="n">Criterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Soft Trust Region on params criterion</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rho</span> <span class="o">=</span> <span class="n">rho</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_vparams0</span> <span class="o">=</span> <span class="n">parameters_to_vector</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+<div class="viewcode-block" id="STRParamCriterion.forward"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.STRParamCriterion.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">vparams</span> <span class="o">=</span> <span class="n">parameters_to_vector</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rho</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">vparams</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vparams0</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SOSCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.SOSCriterion">[docs]</a><span class="k">class</span> <span class="nc">SOSCriterion</span><span class="p">(</span><span class="n">Criterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sum-of-squares criterion</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="SOSCriterion.forward"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.SOSCriterion.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">residuals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SOSCriterion.residuals"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.SOSCriterion.residuals">[docs]</a>    <span class="k">def</span> <span class="nf">residuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Forward method for computing SOS residuals</span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (DiscreteDynamicalSystem)</span>
+<span class="sd">            x (torch.tensor): (B,T,n) system states</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            residuals (torch.tensor): (nresid,) residuals</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="SOSCriterion.scaled_jac_x_diag"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.SOSCriterion.scaled_jac_x_diag">[docs]</a>    <span class="k">def</span> <span class="nf">scaled_jac_x_diag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the diagonal blocs of the Jacobian</span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.tensor): (B,T,n) system states</span>
+<span class="sd">        Returns</span>
+<span class="sd">            jac_resid_x (lambda): lambda function of (b,t) that returns 2 torch.tensors of dimension (n,n)</span>
+<span class="sd">        &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="SOSCriterion.jac_resid_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.SOSCriterion.jac_resid_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_resid_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method for computing residuals jacobian wrt x</span>
+<span class="sd">        Args:</span>
+<span class="sd">            model (DiscreteDynamicalSystem)</span>
+<span class="sd">            x (torch.tensor): (B,T,n) system states</span>
+<span class="sd">            sparse (bool): if True returns a (nresid,B*T*n) sparse_format</span>
+<span class="sd">            sparse_format (scipy.sparse): sparse matrix format</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            jac_resid_x (torch.tensor): (nresid,B,T,n) criterion jacobian</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Using a very inefficient jac_resid_x&#39;</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">resid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">residuals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">jac_resid_x</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resid</span><span class="p">:</span>
+            <span class="n">jac_resid_x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grad</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">retain_graph</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">jac_resid_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">jac_resid_x</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">nresid</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">jac_resid_x</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">csc_matrix</span><span class="p">(</span>
+                <span class="n">jac_resid_x</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">nresid</span><span class="p">,</span> <span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">jac_resid_x</span></div></div>
+
+
+<div class="viewcode-block" id="GaussianObservationCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianObservationCriterion">[docs]</a><span class="k">class</span> <span class="nc">GaussianObservationCriterion</span><span class="p">(</span><span class="n">SOSCriterion</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Sig_y_inv</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="n">t</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_y</span> <span class="o">=</span> <span class="n">y</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_u</span> <span class="o">=</span> <span class="n">u</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">Sig_y_inv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">Sig_y_inv</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># assuming diagonal</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_y_inv_chol</span> <span class="o">=</span> <span class="n">Sig_y_inv</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">Sig_y_inv</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># assuming full</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_y_inv_chol</span> <span class="o">=</span> <span class="n">Sig_y_inv</span><span class="o">.</span><span class="n">cholesky</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">Sig_y_inv</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="c1"># assuming full, timevarying</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_y_inv_chol</span> <span class="o">=</span> <span class="n">Sig_y_inv</span><span class="o">.</span><span class="n">cholesky</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="GaussianObservationCriterion.apply_inds"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianObservationCriterion.apply_inds">[docs]</a>    <span class="k">def</span> <span class="nf">apply_inds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">inds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_u</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_y</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_u</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span></div>
+
+<div class="viewcode-block" id="GaussianObservationCriterion.residuals"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianObservationCriterion.residuals">[docs]</a>    <span class="k">def</span> <span class="nf">residuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_inds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">)</span>
+
+        <span class="n">ypred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="n">err</span> <span class="o">=</span> <span class="n">ypred</span> <span class="o">-</span> <span class="n">y</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span><span class="p">:</span>
+            <span class="n">resid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_y_inv_chol</span> <span class="o">*</span> <span class="n">err</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resid</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Sig_y_inv_chol</span> <span class="o">@</span> <span class="n">err</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resid</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">flatten</span> <span class="k">else</span> <span class="n">resid</span></div>
+
+<div class="viewcode-block" id="GaussianObservationCriterion.scaled_jac_x_diag"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianObservationCriterion.scaled_jac_x_diag">[docs]</a>    <span class="k">def</span> <span class="nf">scaled_jac_x_diag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_inds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">)</span>
+        <span class="n">jac_obs_x</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">jac_obs_x</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span><span class="p">:</span>
+            <span class="n">jac_resid_x_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_y_inv_chol</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">jac_obs_x</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jac_resid_x_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_y_inv_chol</span> <span class="o">@</span> <span class="n">jac_obs_x</span>
+
+        <span class="n">J</span> <span class="o">=</span> <span class="n">jac_resid_x_</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">J</span></div>
+
+<div class="viewcode-block" id="GaussianObservationCriterion.jac_resid_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianObservationCriterion.jac_resid_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_resid_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_inds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ObsJacMixin</span><span class="p">):</span>
+            <span class="n">jac_resid_x_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled_jac_x_diag</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+            <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">jac_resid_x_</span><span class="o">.</span><span class="n">shape</span>
+            <span class="c1"># currently (B,T,m,n)</span>
+
+            <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span><span class="p">)</span>
+                <span class="n">idptr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">jac_resid_x</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">bsr_matrix</span><span class="p">((</span><span class="n">jac_resid_x_</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">idx</span><span class="p">,</span> <span class="n">idptr</span><span class="p">),</span>
+                                            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">T</span> <span class="o">*</span> <span class="n">m</span> <span class="o">*</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">B</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">sparse_format</span><span class="p">(</span><span class="n">jac_resid_x</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">jac_resid_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">m</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="p">):</span>
+                        <span class="n">jac_resid_x</span><span class="p">[(</span><span class="n">b</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">m</span><span class="p">:(</span><span class="n">b</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span>
+                                    <span class="n">m</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">jac_resid_x_</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">jac_resid_x</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;model needs an ObsJacMixin&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
+
+
+<div class="viewcode-block" id="STRStateCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.STRStateCriterion">[docs]</a><span class="k">class</span> <span class="nc">STRStateCriterion</span><span class="p">(</span><span class="n">SOSCriterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Soft Trust Region on states </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rho</span><span class="p">,</span> <span class="n">x0</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">x0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rho</span> <span class="o">=</span> <span class="n">rho</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x0</span> <span class="o">=</span> <span class="n">x0</span>
+
+<div class="viewcode-block" id="STRStateCriterion.residuals"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.STRStateCriterion.residuals">[docs]</a>    <span class="k">def</span> <span class="nf">residuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rho</span> <span class="o">*</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">flatten</span> <span class="k">else</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="STRStateCriterion.scaled_jac_x_diag"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.STRStateCriterion.scaled_jac_x_diag">[docs]</a>    <span class="k">def</span> <span class="nf">scaled_jac_x_diag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">jac_resid</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rho</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">jac_resid</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="STRStateCriterion.jac_resid_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.STRStateCriterion.jac_resid_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_resid_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+        <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rho</span> <span class="o">*</span> <span class="n">sp</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">sparse_format</span><span class="o">.</span><span class="n">format</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rho</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="GaussianX0Criterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianX0Criterion">[docs]</a><span class="k">class</span> <span class="nc">GaussianX0Criterion</span><span class="p">(</span><span class="n">SOSCriterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Soft Trust Region on states </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">Sig_x0_inv</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">x0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_x0</span> <span class="o">=</span> <span class="n">x0</span>
+        <span class="k">if</span> <span class="n">Sig_x0_inv</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># assuming diagonal</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_x0_inv_chol</span> <span class="o">=</span> <span class="n">Sig_x0_inv</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_x0_inv_chol</span> <span class="o">=</span> <span class="n">Sig_x0_inv</span><span class="o">.</span><span class="n">cholesky</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="GaussianX0Criterion.residuals"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianX0Criterion.residuals">[docs]</a>    <span class="k">def</span> <span class="nf">residuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">err</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_x0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span><span class="p">:</span>
+            <span class="n">resid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_x0_inv_chol</span> <span class="o">*</span> <span class="n">err</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resid</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Sig_x0_inv_chol</span> <span class="o">@</span> <span class="n">err</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resid</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">flatten</span> <span class="k">else</span> <span class="n">resid</span></div>
+
+<div class="viewcode-block" id="GaussianX0Criterion.jac_resid_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianX0Criterion.jac_resid_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_resid_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span><span class="p">:</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_x0_inv_chol</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">diag</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cov</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_x0_inv_chol</span>
+        <span class="c1"># cov = cov.unsqueeze(0).repeat(B,1,1)</span>
+
+        <span class="n">retval</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="n">n</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+            <span class="n">retval</span><span class="p">[</span><span class="n">b</span><span class="o">*</span><span class="n">n</span><span class="p">:(</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">n</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">cov</span>
+        <span class="c1"># retval[:,:,0,:] = cov.view(B*n,B,n)</span>
+
+        <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">sparse_format</span><span class="p">(</span><span class="n">retval</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">B</span><span class="o">*</span><span class="n">T</span><span class="o">*</span><span class="n">n</span><span class="p">)</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">retval</span></div></div>
+
+
+<div class="viewcode-block" id="GaussianDynamicsCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianDynamicsCriterion">[docs]</a><span class="k">class</span> <span class="nc">GaussianDynamicsCriterion</span><span class="p">(</span><span class="n">SOSCriterion</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Sig_w_inv</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">u</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_t</span> <span class="o">=</span> <span class="n">t</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_u</span> <span class="o">=</span> <span class="n">u</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="n">Sig_w_inv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">Sig_w_inv</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># assuming diagonal</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span> <span class="o">=</span> <span class="n">Sig_w_inv</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span> <span class="o">=</span> <span class="n">Sig_w_inv</span><span class="o">.</span><span class="n">cholesky</span><span class="p">()</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span> <span class="o">=</span> <span class="kc">False</span>
+
+<div class="viewcode-block" id="GaussianDynamicsCriterion.apply_inds"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianDynamicsCriterion.apply_inds">[docs]</a>    <span class="k">def</span> <span class="nf">apply_inds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">inds</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_u</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_t</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_u</span>
+        <span class="k">return</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span></div>
+
+<div class="viewcode-block" id="GaussianDynamicsCriterion.residuals"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianDynamicsCriterion.residuals">[docs]</a>    <span class="k">def</span> <span class="nf">residuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_inds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">)</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">xpred</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_t</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="n">err</span> <span class="o">=</span> <span class="n">xpred</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span><span class="p">:</span>
+            <span class="n">resid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span> <span class="o">*</span> <span class="n">err</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resid</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span> <span class="o">@</span> <span class="n">err</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">resid</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">flatten</span> <span class="k">else</span> <span class="n">resid</span></div>
+
+<div class="viewcode-block" id="GaussianDynamicsCriterion.scaled_jac_x_diag"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianDynamicsCriterion.scaled_jac_x_diag">[docs]</a>    <span class="k">def</span> <span class="nf">scaled_jac_x_diag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_inds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">)</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">jac_dyn_x_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">jac_step_x</span><span class="p">(</span><span class="n">t</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_diagcov</span><span class="p">:</span>
+            <span class="n">jac_resid_x_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">jac_dyn_x_</span>
+            <span class="n">neyew</span> <span class="o">=</span> <span class="o">-</span><span class="n">torch</span><span class="o">.</span><span class="n">diag_embed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jac_resid_x_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span> <span class="o">@</span> <span class="n">jac_dyn_x_</span>
+            <span class="n">neyew</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">_Sig_w_inv_chol</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">J</span> <span class="o">=</span> <span class="n">jac_resid_x_</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">J</span><span class="p">,</span> <span class="n">neyew</span></div>
+
+<div class="viewcode-block" id="GaussianDynamicsCriterion.jac_resid_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GaussianDynamicsCriterion.jac_resid_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_resid_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="n">inds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply_inds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inds</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">DynJacMixin</span><span class="p">):</span>
+            <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+            <span class="n">u</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">u</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="n">jac_dyn_x_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">jac_step_x</span><span class="p">(</span><span class="n">t</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">x</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">u</span><span class="p">)</span>
+
+            <span class="n">jac_resid_x_</span><span class="p">,</span> <span class="n">neyew</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">scaled_jac_x_diag</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+            <span class="c1"># currently (B,T-1,n,n)</span>
+
+            <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+                <span class="c1"># Create the right indices given bloc diagonal</span>
+                <span class="c1"># There is a slight subtlety as intersection between batches</span>
+                <span class="n">idx_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">((</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">idx_</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">T</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">)])</span>
+                <span class="n">idptr</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+                <span class="c1"># Create diagonal matrix with jacobians</span>
+                <span class="n">J1</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">bsr_matrix</span><span class="p">((</span><span class="n">jac_resid_x_</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">idx</span><span class="p">,</span> <span class="n">idptr</span><span class="p">),</span>
+                                   <span class="n">shape</span><span class="o">=</span><span class="p">((</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">B</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+                <span class="c1"># Create diagonal matrix with negative identity</span>
+                <span class="n">E</span> <span class="o">=</span> <span class="p">(</span><span class="n">neyew</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+                <span class="n">J2</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">bsr_matrix</span><span class="p">((</span><span class="n">E</span><span class="p">,</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">idptr</span><span class="p">),</span> <span class="n">shape</span><span class="o">=</span><span class="p">((</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span> <span class="o">*</span> <span class="n">B</span><span class="p">),</span>
+                                   <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="n">sparse_format</span><span class="p">(</span><span class="n">J1</span> <span class="o">+</span> <span class="n">J2</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">jac_resid_x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">jac_resid_x</span><span class="p">[(</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">:(</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span>
+                                    <span class="n">n</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">jac_resid_x_</span><span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">t</span><span class="p">]</span>
+                        <span class="n">jac_resid_x</span><span class="p">[(</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">t</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">:(</span><span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">t</span> <span class="o">+</span>
+                                    <span class="mi">1</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">neyew</span>
+                <span class="k">return</span> <span class="n">jac_resid_x</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">jac_resid_x</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BasicGroupSOSCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.BasicGroupSOSCriterion">[docs]</a><span class="k">class</span> <span class="nc">BasicGroupSOSCriterion</span><span class="p">(</span><span class="n">SOSCriterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Group of SOSCriterion instances</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+<div class="viewcode-block" id="GroupSOSCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GroupSOSCriterion">[docs]</a><span class="k">class</span> <span class="nc">GroupSOSCriterion</span><span class="p">(</span><span class="n">BasicGroupSOSCriterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Group of SOSCriterion instances</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">criteria</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span> <span class="o">=</span> <span class="n">criteria</span>
+
+<div class="viewcode-block" id="GroupSOSCriterion.residuals"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GroupSOSCriterion.residuals">[docs]</a>    <span class="k">def</span> <span class="nf">residuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">residuals_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">residuals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">residuals_list</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GroupSOSCriterion.jac_resid_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.GroupSOSCriterion.jac_resid_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_resid_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">jacs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">jac_resid_x</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span>
+        <span class="p">]</span>
+
+        <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="n">sparse</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sparse_format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">sp</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">sparse_format</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">jacs</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">sp</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">jacs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">jacs</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="BlockSparseGroupSOSCriterion"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.BlockSparseGroupSOSCriterion">[docs]</a><span class="k">class</span> <span class="nc">BlockSparseGroupSOSCriterion</span><span class="p">(</span><span class="n">BasicGroupSOSCriterion</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Group of SOSCriterion instances with careful design of the sparsity pattern in the Jacobian matrix.</span>
+<span class="sd">    All SOSCriterion but the last one must have block diagonal jacobians and a `.scaled_jac_x_diag` method.</span>
+<span class="sd">    The last SOSCriterion, typically the dynamics, has two blocks on the primary and first upper diagonal.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">criteria</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span> <span class="o">=</span> <span class="n">criteria</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_size</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">c</span><span class="o">.</span><span class="n">_size</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mem</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="BlockSparseGroupSOSCriterion.residuals"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.BlockSparseGroupSOSCriterion.residuals">[docs]</a>    <span class="k">def</span> <span class="nf">residuals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">residuals</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">)</span>
+
+        <span class="c1"># Assign all residuals of length T residuals</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">residuals</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">s</span><span class="p">:</span><span class="n">s</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">_size</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">residuals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">s</span> <span class="o">+=</span> <span class="n">c</span><span class="o">.</span><span class="n">_size</span>
+
+        <span class="c1"># Assign dynamics residuals (length T-1)</span>
+        <span class="n">residuals</span><span class="p">[:,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="n">n</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">residuals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">flatten</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">residuals</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BlockSparseGroupSOSCriterion.jac_resid_x"><a class="viewcode-back" href="../../source/ceem.html#ceem.opt_criteria.BlockSparseGroupSOSCriterion.jac_resid_x">[docs]</a>    <span class="k">def</span> <span class="nf">jac_resid_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">sparse_format</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">bsr_matrix</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="c1"># Check for memoized sparsity pattern</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">B</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">T</span><span class="si">}</span><span class="s1">,</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mem</span><span class="p">:</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pattern</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="c1"># For J1</span>
+            <span class="n">idx_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idx1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">idx_</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">T</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">)])</span>
+            <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idptr1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># For J2</span>
+            <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idx2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idx1&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">idptr_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+            <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idptr2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">idptr_</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">)]</span> <span class="o">+</span>
+                                          <span class="p">[</span><span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">B</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])])</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_mem</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">pattern</span>
+
+        <span class="c1"># Obtain building blocks from subcriteria</span>
+        <span class="n">J</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">J</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">scaled_jac_x_diag</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size</span>
+        <span class="n">Jd</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_criteria</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">scaled_jac_x_diag</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">Jd</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">Jd</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># Build main diagonal</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">(</span><span class="n">J</span> <span class="o">+</span> <span class="p">[</span><span class="n">Jd</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">J1</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">bsr_matrix</span><span class="p">((</span><span class="n">D</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">),</span> <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idx1&#39;</span><span class="p">],</span> <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idptr1&#39;</span><span class="p">]),</span>
+                           <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">m</span><span class="p">,</span> <span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># Add off-diag term</span>
+        <span class="n">E</span> <span class="o">=</span> <span class="p">(</span><span class="n">E</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">E</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">pad</span><span class="p">(</span><span class="n">E</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">m</span> <span class="o">-</span> <span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;constant&#39;</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="p">(</span><span class="n">T</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">m</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+
+        <span class="n">J2</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">bsr_matrix</span><span class="p">((</span><span class="n">E</span><span class="p">,</span> <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idx2&#39;</span><span class="p">],</span> <span class="n">pattern</span><span class="p">[</span><span class="s1">&#39;idptr2&#39;</span><span class="p">]),</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">m</span><span class="p">,</span> <span class="n">B</span> <span class="o">*</span> <span class="n">T</span> <span class="o">*</span> <span class="n">n</span><span class="p">),</span>
+                           <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">sparse_format</span><span class="p">(</span><span class="n">J1</span> <span class="o">+</span> <span class="n">J2</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">CE-EM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Stanford Intelligent Systems Laboratory (SISL).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
