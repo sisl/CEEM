@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ceem.exp_utils &#8212; CE-EM  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ceem.exp_utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">ceem.baseline_utils</span> <span class="kn">import</span> <span class="n">LagModel</span>
+<span class="kn">from</span> <span class="nn">ceem.systems</span> <span class="kn">import</span> <span class="n">DiscreteLinear</span>
+<span class="kn">from</span> <span class="nn">ceem.data_utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">ceem.smoother</span> <span class="kn">import</span> <span class="n">EKF</span>
+
+<span class="kn">from</span> <span class="nn">scipy.io</span> <span class="kn">import</span> <span class="n">loadmat</span>
+
+<div class="viewcode-block" id="compute_rms"><a class="viewcode-back" href="../../source/ceem.html#ceem.exp_utils.compute_rms">[docs]</a><span class="k">def</span> <span class="nf">compute_rms</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">ypred</span><span class="p">,</span> <span class="n">y_std</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute RMS prediction error on type of trajectory</span>
+<span class="sd">    Args: y (torch.tensor): (B,T,m) tensor of true observations</span>
+<span class="sd">          ypred (torch.tensor): (B,T,m) tensor of predicted observations</span>
+<span class="sd">          demonames (list): len=T list of demo names</span>
+<span class="sd">          y_std (torch.tensor): (m,) standard deviations</span>
+<span class="sd">    Returns:</span>
+<span class="sd">          (B,) rms errors on each demo</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">B</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">m</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">y_std</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">y_std</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="n">all_rms</span> <span class="o">=</span> <span class="p">((</span><span class="n">y</span><span class="o">-</span><span class="n">ypred</span><span class="p">)</span><span class="o">*</span> <span class="n">y_std</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">m</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span> 
+    <span class="n">all_rms</span> <span class="o">=</span> <span class="n">all_rms</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">all_rms</span> <span class="o">=</span> <span class="n">all_rms</span><span class="o">.</span><span class="n">sqrt</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">all_rms</span></div>
+
+<div class="viewcode-block" id="gen_ypred_benchmark"><a class="viewcode-back" href="../../source/ceem.html#ceem.exp_utils.gen_ypred_benchmark">[docs]</a><span class="k">def</span> <span class="nf">gen_ypred_benchmark</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">u</span><span class="p">):</span>
+    
+    <span class="n">B</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">m</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">ypreds</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">T</span><span class="o">-</span><span class="n">H</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+        <span class="n">D</span> <span class="o">=</span> <span class="n">u</span><span class="p">[:,</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="o">+</span><span class="n">H</span><span class="p">]</span>
+        <span class="n">ypreds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">net</span><span class="p">(</span><span class="n">D</span><span class="p">))</span>
+    <span class="n">ypred</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">ypreds</span><span class="p">,</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ypred</span></div>
+
+<div class="viewcode-block" id="gen_ypred_model"><a class="viewcode-back" href="../../source/ceem.html#ceem.exp_utils.gen_ypred_model">[docs]</a><span class="k">def</span> <span class="nf">gen_ypred_model</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">s0fac</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">rfac</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">qfac</span><span class="o">=</span><span class="mf">1.0</span><span class="p">):</span>
+    <span class="n">xdim</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_xdim</span>
+    <span class="n">B</span><span class="p">,</span><span class="n">T</span><span class="p">,</span><span class="n">udim</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">ydim</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">x0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">xdim</span><span class="p">)</span>
+    <span class="n">sigma0</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">xdim</span><span class="p">)</span> <span class="o">*</span> <span class="n">s0fac</span>
+    <span class="n">Q</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">xdim</span><span class="p">)</span> <span class="o">*</span> <span class="n">qfac</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">ydim</span><span class="p">)</span> <span class="o">*</span> <span class="n">rfac</span>
+
+    <span class="n">x</span><span class="p">,</span> <span class="n">ypred</span> <span class="o">=</span> <span class="n">EKF</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">u</span><span class="p">,</span> <span class="n">sigma0</span><span class="p">,</span> <span class="n">Q</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ypred</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">CE-EM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Stanford Intelligent Systems Laboratory (SISL).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

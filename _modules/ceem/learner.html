@@ -1,0 +1,315 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ceem.learner &#8212; CE-EM  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ceem.learner</h1><div class="highlight"><pre>
+<span></span><span class="c1">#</span>
+<span class="c1"># File: learner.py</span>
+<span class="c1">#</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">least_squares</span><span class="p">,</span> <span class="n">minimize</span>
+<span class="kn">from</span> <span class="nn">torch.autograd</span> <span class="kn">import</span> <span class="n">backward</span>
+<span class="kn">from</span> <span class="nn">torch.nn.utils</span> <span class="kn">import</span> <span class="n">parameters_to_vector</span><span class="p">,</span> <span class="n">vector_to_parameters</span>
+
+<span class="kn">from</span> <span class="nn">ceem</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">ceem.opt_criteria</span> <span class="kn">import</span> <span class="n">GroupCriterion</span><span class="p">,</span> <span class="n">STRParamCriterion</span>
+
+
+<div class="viewcode-block" id="learner"><a class="viewcode-back" href="../../source/ceem.html#ceem.learner.learner">[docs]</a><span class="k">def</span> <span class="nf">learner</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion_list</span><span class="p">,</span> <span class="n">criterion_x_list</span><span class="p">,</span> <span class="n">opt_list</span><span class="p">,</span> <span class="n">params_list</span><span class="p">,</span> <span class="n">crit_kwargs_list</span><span class="p">,</span>
+            <span class="n">opt_kwargs_list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">subsetinds</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generic learner function</span>
+<span class="sd">    Args:</span>
+<span class="sd">        model (DiscreteDynamicalSystem)</span>
+<span class="sd">        criterion_list: list of Criterion instances</span>
+<span class="sd">        criterion_x_list: list of torch.tensor to pass to criteria</span>
+<span class="sd">        opt_list: list of optimizers (see OPTIMIZERS)</span>
+<span class="sd">        params_list: list of list of parameters for each optimizer</span>
+<span class="sd">        crit_kwargs_list: list of kwargs for each criterion</span>
+<span class="sd">        opt_kwargs_list: kwargs to optimizer</span>
+<span class="sd">        subsetinds: array specifying the batch indices to operate on</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">      opt_result_list (list):</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">opt_kwargs_list</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">opt_kwargs_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">DEFAULT_OPTIMIZER_KWARGS</span><span class="p">[</span><span class="n">opt</span><span class="p">]</span> <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">opt_list</span><span class="p">]</span>
+
+    <span class="c1"># set all requires_grad to false</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">criterion_x_list</span><span class="p">:</span>
+        <span class="n">x</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">opt_result_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">criterion_list</span><span class="p">)):</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="n">criterion_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">criterion_x</span> <span class="o">=</span> <span class="n">criterion_x_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">opt</span> <span class="o">=</span> <span class="n">OPTIMIZERS</span><span class="p">[</span><span class="n">opt_list</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">params_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">crit_kwargs</span> <span class="o">=</span> <span class="n">crit_kwargs_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">crit_kwargs</span><span class="p">[</span><span class="s1">&#39;inds&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">subsetinds</span>
+        <span class="n">opt_kwargs</span> <span class="o">=</span> <span class="n">opt_kwargs_list</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+        <span class="n">opt_result</span> <span class="o">=</span> <span class="n">opt</span><span class="p">(</span><span class="n">criterion</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion_x</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">crit_kwargs</span><span class="p">,</span> <span class="n">opt_kwargs</span><span class="p">)</span>
+
+        <span class="n">opt_result_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt_result</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">opt_result_list</span></div>
+
+
+<div class="viewcode-block" id="scipy_minimize"><a class="viewcode-back" href="../../source/ceem.html#ceem.learner.scipy_minimize">[docs]</a><span class="k">def</span> <span class="nf">scipy_minimize</span><span class="p">(</span><span class="n">criterion</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion_x</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">crit_kwargs</span><span class="p">,</span> <span class="n">opt_kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Wrapper function to call scipy optimizers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">opt_kwargs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">opt_kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;tr_rho&#39;</span> <span class="ow">in</span> <span class="n">opt_kwargs</span><span class="p">:</span>
+        <span class="n">tr_rho</span> <span class="o">=</span> <span class="n">opt_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;tr_rho&#39;</span><span class="p">)</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="n">GroupCriterion</span><span class="p">([</span><span class="n">criterion</span><span class="p">,</span> <span class="n">STRParamCriterion</span><span class="p">(</span><span class="n">tr_rho</span><span class="p">,</span> <span class="n">params</span><span class="p">)])</span>
+
+    <span class="n">B</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">criterion_x</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">vparams0</span> <span class="o">=</span> <span class="n">parameters_to_vector</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">eval_f</span><span class="p">(</span><span class="n">vparams</span><span class="p">):</span>
+        <span class="n">vparams</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">vparams</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">get_default_dtype</span><span class="p">())</span>
+        <span class="n">vector_to_parameters</span><span class="p">(</span><span class="n">vparams</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion_x</span><span class="p">,</span> <span class="o">**</span><span class="n">crit_kwargs</span><span class="p">)</span>
+
+        <span class="n">vector_to_parameters</span><span class="p">(</span><span class="n">vparams0</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">loss</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">eval_g</span><span class="p">(</span><span class="n">vparams</span><span class="p">):</span>
+        <span class="n">vparams</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">vparams</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">get_default_dtype</span><span class="p">())</span>
+        <span class="n">vector_to_parameters</span><span class="p">(</span><span class="n">vparams</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion_x</span><span class="p">,</span> <span class="o">**</span><span class="n">crit_kwargs</span><span class="p">)</span>
+
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">grad</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">grad</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span>
+        <span class="p">])</span>
+
+        <span class="n">grads</span> <span class="o">=</span> <span class="n">grads</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">numpy</span><span class="p">()</span>
+
+        <span class="n">vector_to_parameters</span><span class="p">(</span><span class="n">vparams0</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">grads</span>
+
+    <span class="n">start_feval</span> <span class="o">=</span> <span class="n">eval_f</span><span class="p">(</span><span class="n">vparams0</span><span class="o">.</span><span class="n">numpy</span><span class="p">())</span>
+    <span class="n">start_gradnorm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">eval_g</span><span class="p">(</span><span class="n">vparams0</span><span class="o">.</span><span class="n">numpy</span><span class="p">()))</span>
+
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">Timer</span><span class="p">()</span> <span class="k">as</span> <span class="n">time</span><span class="p">:</span>
+        <span class="n">opt_result_</span> <span class="o">=</span> <span class="n">minimize</span><span class="p">(</span><span class="n">eval_f</span><span class="p">,</span> <span class="n">vparams0</span><span class="o">.</span><span class="n">numpy</span><span class="p">(),</span> <span class="n">jac</span><span class="o">=</span><span class="n">eval_g</span><span class="p">,</span> <span class="o">**</span><span class="n">opt_kwargs</span><span class="p">)</span>
+
+    <span class="n">vparams</span> <span class="o">=</span> <span class="n">opt_result_</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
+
+    <span class="n">end_feval</span> <span class="o">=</span> <span class="n">eval_f</span><span class="p">(</span><span class="n">vparams</span><span class="p">)</span>
+    <span class="n">end_gradnorm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">eval_g</span><span class="p">(</span><span class="n">vparams</span><span class="p">))</span>
+
+    <span class="n">vparams</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">vparams</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">get_default_dtype</span><span class="p">())</span>
+    <span class="n">vector_to_parameters</span><span class="p">(</span><span class="n">vparams</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+    <span class="n">net_update_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">vparams</span> <span class="o">-</span> <span class="n">vparams0</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span>
+
+    <span class="n">opt_result</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;net_update_norm&#39;</span><span class="p">:</span> <span class="n">net_update_norm</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()}</span>
+    <span class="n">opt_result</span><span class="p">[</span><span class="s1">&#39;start_feval&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">start_feval</span><span class="p">)</span>
+    <span class="n">opt_result</span><span class="p">[</span><span class="s1">&#39;start_gradnorm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start_gradnorm</span>
+    <span class="n">opt_result</span><span class="p">[</span><span class="s1">&#39;end_feval&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">end_feval</span><span class="p">)</span>
+    <span class="n">opt_result</span><span class="p">[</span><span class="s1">&#39;end_gradnorm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end_gradnorm</span>
+    <span class="n">opt_result</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">dt</span>
+
+    <span class="k">return</span> <span class="n">opt_result</span></div>
+
+
+<span class="n">TORCH_OPTIMIZERS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;LBFGS&#39;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">LBFGS</span><span class="p">,</span> <span class="s1">&#39;SGD&#39;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">SGD</span><span class="p">,</span> <span class="s1">&#39;Adam&#39;</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">optim</span><span class="o">.</span><span class="n">Adam</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="ensure_default_torch_kwargs"><a class="viewcode-back" href="../../source/ceem.html#ceem.learner.ensure_default_torch_kwargs">[docs]</a><span class="k">def</span> <span class="nf">ensure_default_torch_kwargs</span><span class="p">(</span><span class="n">opt_kwargs</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="s1">&#39;method&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt_kwargs</span><span class="p">:</span>
+        <span class="n">opt_kwargs</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;LBFGS&#39;</span>
+    <span class="k">if</span> <span class="s1">&#39;lr&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt_kwargs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">opt_kwargs</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;LBFGS&#39;</span><span class="p">:</span>
+            <span class="n">opt_kwargs</span><span class="p">[</span><span class="s1">&#39;lr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">opt_kwargs</span><span class="p">[</span><span class="s1">&#39;lr&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e-4</span>
+    <span class="k">if</span> <span class="s1">&#39;nepochs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt_kwargs</span><span class="p">:</span>
+        <span class="n">opt_kwargs</span><span class="p">[</span><span class="s1">&#39;nepochs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="k">if</span> <span class="s1">&#39;max_grad_norm&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">opt_kwargs</span><span class="p">:</span>
+        <span class="n">opt_kwargs</span><span class="p">[</span><span class="s1">&#39;max_grad_norm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">return</span> <span class="n">opt_kwargs</span></div>
+
+
+<div class="viewcode-block" id="torch_minimize"><a class="viewcode-back" href="../../source/ceem.html#ceem.learner.torch_minimize">[docs]</a><span class="k">def</span> <span class="nf">torch_minimize</span><span class="p">(</span><span class="n">criterion</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">criterion_x</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">crit_kwargs</span><span class="p">,</span> <span class="n">opt_kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Wrapper function to use torch.optim optimizers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">opt_kwargs</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">opt_kwargs</span><span class="p">)</span>
+
+    <span class="n">opt_kwargs</span> <span class="o">=</span> <span class="n">ensure_default_torch_kwargs</span><span class="p">(</span><span class="n">opt_kwargs</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;tr_rho&#39;</span> <span class="ow">in</span> <span class="n">opt_kwargs</span><span class="p">:</span>
+        <span class="n">tr_rho</span> <span class="o">=</span> <span class="n">opt_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;tr_rho&#39;</span><span class="p">)</span>
+        <span class="n">criterion</span> <span class="o">=</span> <span class="n">GroupCriterion</span><span class="p">([</span><span class="n">criterion</span><span class="p">,</span> <span class="n">STRParamCriterion</span><span class="p">(</span><span class="n">tr_rho</span><span class="p">,</span> <span class="n">params</span><span class="p">)])</span>
+
+    <span class="n">method</span> <span class="o">=</span> <span class="n">opt_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;method&#39;</span><span class="p">)</span>
+
+    <span class="n">nepochs</span> <span class="o">=</span> <span class="n">opt_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;nepochs&#39;</span><span class="p">)</span>
+
+    <span class="n">max_grad_norm</span> <span class="o">=</span> <span class="n">opt_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;max_grad_norm&#39;</span><span class="p">)</span>
+
+    <span class="n">opt</span> <span class="o">=</span> <span class="n">TORCH_OPTIMIZERS</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">opt_kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">closure</span><span class="p">():</span>
+        <span class="n">opt</span><span class="o">.</span><span class="n">zero_grad</span><span class="p">()</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">criterion</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">criterion_x</span><span class="p">,</span> <span class="o">**</span><span class="n">crit_kwargs</span><span class="p">)</span>
+        <span class="n">loss</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">loss</span>
+
+    <span class="n">start_feval</span> <span class="o">=</span> <span class="n">closure</span><span class="p">()</span>
+    <span class="n">start_gradnorm</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_grad_norm</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">vparams0</span> <span class="o">=</span> <span class="n">parameters_to_vector</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">utils</span><span class="o">.</span><span class="n">Timer</span><span class="p">()</span> <span class="k">as</span> <span class="n">time</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nepochs</span><span class="p">):</span>
+
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;LBFGS&#39;</span><span class="p">:</span>
+                <span class="n">opt</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">closure</span><span class="o">=</span><span class="n">closure</span><span class="p">)</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">closure</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">loss</span> <span class="o">=</span> <span class="n">closure</span><span class="p">()</span>
+                <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">clip_grad_norm_</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">max_grad_norm</span><span class="p">)</span>
+                <span class="n">opt</span><span class="o">.</span><span class="n">step</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">epoch</span> <span class="o">%</span> <span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Epoch </span><span class="si">%d</span><span class="s1">, Loss </span><span class="si">%.3e</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">epoch</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">loss</span><span class="p">)))</span>
+
+    <span class="n">end_feval</span> <span class="o">=</span> <span class="n">closure</span><span class="p">()</span>
+    <span class="n">end_gradnorm</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">get_grad_norm</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="n">vparams</span> <span class="o">=</span> <span class="n">parameters_to_vector</span><span class="p">(</span><span class="n">params</span><span class="p">)</span><span class="o">.</span><span class="n">clone</span><span class="p">()</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+
+    <span class="n">net_update_norm</span> <span class="o">=</span> <span class="p">(</span><span class="n">vparams</span> <span class="o">-</span> <span class="n">vparams0</span><span class="p">)</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span>
+
+    <span class="n">opt_result</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;time&#39;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span>
+        <span class="s1">&#39;start_feval&#39;</span><span class="p">:</span> <span class="n">start_feval</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s1">&#39;start_gradnorm&#39;</span><span class="p">:</span> <span class="n">start_gradnorm</span><span class="p">,</span>
+        <span class="s1">&#39;end_feval&#39;</span><span class="p">:</span> <span class="n">end_feval</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="s1">&#39;end_gradnorm&#39;</span><span class="p">:</span> <span class="n">end_gradnorm</span><span class="p">,</span>
+        <span class="s1">&#39;net_update_norm&#39;</span><span class="p">:</span> <span class="n">net_update_norm</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">opt_result</span></div>
+
+
+<span class="n">OPTIMIZERS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;scipy_minimize&#39;</span><span class="p">:</span> <span class="n">scipy_minimize</span><span class="p">,</span> <span class="s1">&#39;torch_minimize&#39;</span><span class="p">:</span> <span class="n">torch_minimize</span><span class="p">}</span>
+
+<span class="n">DEFAULT_OPTIMIZER_KWARGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;scipy_minimize&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;Nelder-Mead&#39;</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;torch_minimize&#39;</span><span class="p">:</span> <span class="n">ensure_default_torch_kwargs</span><span class="p">({})</span>
+<span class="p">}</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">CE-EM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Stanford Intelligent Systems Laboratory (SISL).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

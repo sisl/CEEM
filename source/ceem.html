@@ -1,0 +1,2191 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ceem package &#8212; CE-EM  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="ceem-package">
+<h1>ceem package<a class="headerlink" href="#ceem-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ceem.systems.html">ceem.systems package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ceem.systems.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ceem.systems.html#module-ceem.systems.discretelinear">ceem.systems.discretelinear module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ceem.systems.html#module-ceem.systems.lorenzattractor">ceem.systems.lorenzattractor module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ceem.systems.html#module-ceem.systems.lorenzsystem">ceem.systems.lorenzsystem module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ceem.systems.html#module-ceem.systems.maglev">ceem.systems.maglev module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ceem.systems.html#module-ceem.systems.springmassdamper">ceem.systems.springmassdamper module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ceem.systems.html#module-ceem.systems">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-ceem.baseline_utils">
+<span id="ceem-baseline-utils-module"></span><h2>ceem.baseline_utils module<a class="headerlink" href="#module-ceem.baseline_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="ceem.baseline_utils.DEFAULT_NN_KWARGS">
+<code class="sig-prename descclassname">ceem.baseline_utils.</code><code class="sig-name descname">DEFAULT_NN_KWARGS</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">H</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceem.baseline_utils.DEFAULT_NN_KWARGS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="ceem.baseline_utils.LagModel">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.baseline_utils.</code><code class="sig-name descname">LagModel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">neural_net_kwargs</span></em>, <em class="sig-param"><span class="n">H</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/baseline_utils.html#LagModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.baseline_utils.LagModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dl class="py method">
+<dt id="ceem.baseline_utils.LagModel.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_batch</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/baseline_utils.html#LagModel.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.baseline_utils.LagModel.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.ceem">
+<span id="ceem-ceem-module"></span><h2>ceem.ceem module<a class="headerlink" href="#module-ceem.ceem" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.ceem.CEEM">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.ceem.</code><code class="sig-name descname">CEEM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">smoothing_criteria</span><span class="p">:</span> <span class="n">Tuple</span></em>, <em class="sig-param"><span class="n">learning_criteria</span><span class="p">:</span> <span class="n">Tuple</span></em>, <em class="sig-param"><span class="n">learning_params</span><span class="p">:</span> <span class="n">Tuple</span></em>, <em class="sig-param"><span class="n">learning_opts</span><span class="p">:</span> <span class="n">Tuple</span></em>, <em class="sig-param"><span class="n">epoch_callbacks</span><span class="p">:</span> <span class="n">Tuple[Callable[int, None], …]</span></em>, <em class="sig-param"><span class="n">termination_callback</span><span class="p">:</span> <span class="n">Callable<span class="p">[</span>int<span class="p">, </span>bool<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">parallel</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/ceem.html#CEEM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.ceem.CEEM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.ceem.CEEM.smooth">
+<code class="sig-name descname">smooth</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xsm</span></em>, <em class="sig-param"><span class="n">sys</span></em>, <em class="sig-param"><span class="n">solver_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subsetinds</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/ceem.html#CEEM.smooth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.ceem.CEEM.smooth" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xsm</strong> (<em>torch.tensor</em>) – (B,T,n) trajectories of states</p></li>
+<li><p><strong>sys</strong> (<a class="reference internal" href="#ceem.dynamics.DiscreteDynamicalSystem" title="ceem.dynamics.DiscreteDynamicalSystem"><em>DiscreteDynamicalSystem</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B,T,n) trajectories of smoothed states
+metrics_l (list):</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xsm (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.ceem.CEEM.step">
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">sys</span></em>, <em class="sig-param"><span class="n">smooth_solver_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">learner_criterion_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">learner_opt_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subset</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/ceem.html#CEEM.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.ceem.CEEM.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs one step of CEEM algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs</strong> (<em>torch.tensor</em>) – </p></li>
+<li><p><strong>sys</strong> (<a class="reference internal" href="#ceem.dynamics.DiscreteDynamicalSystem" title="ceem.dynamics.DiscreteDynamicalSystem"><em>DiscreteDynamicalSystem</em></a>) – </p></li>
+<li><p><strong>smooth_solver_kwargs</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>learner_criterion_kwargs</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>learner_opt_kwargs</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>subset</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>smooth_metrics (dict):
+learn_metrics (dict):</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xs (torch.tensor)</p>
+</dd>
+</dl>
+<p>First runs the smoothing step on trajectories <cite>xs</cite>.
+Then runs the learning step on <cite>sys</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.ceem.CEEM.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">sys</span></em>, <em class="sig-param"><span class="n">nepochs</span></em>, <em class="sig-param"><span class="n">smooth_solver_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">learner_criterion_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">learner_opt_kwargs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subset</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/ceem.html#CEEM.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.ceem.CEEM.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs one step of CEEM algorithm</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs</strong> (<em>torch.tensor</em>) – </p></li>
+<li><p><strong>sys</strong> (<a class="reference internal" href="#ceem.dynamics.DiscreteDynamicalSystem" title="ceem.dynamics.DiscreteDynamicalSystem"><em>DiscreteDynamicalSystem</em></a>) – </p></li>
+<li><p><strong>nepochs</strong> (<em>int</em>) – Number of epochs to run CEEM algorithm for</p></li>
+<li><p><strong>smooth_solver_kwargs</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>learner_criterion_kwargs</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>learner_opt_kwargs</strong> (<em>dict</em>) – </p></li>
+<li><p><strong>subset</strong> (<em>int</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.ceem.log_kv_or_listkv">
+<code class="sig-prename descclassname">ceem.ceem.</code><code class="sig-name descname">log_kv_or_listkv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dic</span></em>, <em class="sig-param"><span class="n">prefix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/ceem.html#log_kv_or_listkv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.ceem.log_kv_or_listkv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.data_utils">
+<span id="ceem-data-utils-module"></span><h2>ceem.data_utils module<a class="headerlink" href="#module-ceem.data_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="ceem.data_utils.load_helidata">
+<code class="sig-prename descclassname">ceem.data_utils.</code><code class="sig-name descname">load_helidata</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em>, <em class="sig-param"><span class="n">split</span></em>, <em class="sig-param"><span class="n">return_files</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/data_utils.html#load_helidata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.data_utils.load_helidata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.data_utils.load_statistics">
+<code class="sig-prename descclassname">ceem.data_utils.</code><code class="sig-name descname">load_statistics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">datadir</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/data_utils.html#load_statistics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.data_utils.load_statistics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.dynamics">
+<span id="ceem-dynamics-module"></span><h2>ceem.dynamics module<a class="headerlink" href="#module-ceem.dynamics" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.dynamics.AnalyticDynJacMixin">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">AnalyticDynJacMixin</code><a class="reference internal" href="../_modules/ceem/dynamics.html#AnalyticDynJacMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.AnalyticDynJacMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.dynamics.DynJacMixin" title="ceem.dynamics.DynJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.DynJacMixin</span></code></a></p>
+<p>Mixin for analytically computing jacobians of dynamics.</p>
+<dl class="py method">
+<dt id="ceem.dynamics.AnalyticDynJacMixin.jac_step_theta">
+<code class="sig-name descname">jac_step_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#AnalyticDynJacMixin.jac_step_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.AnalyticDynJacMixin.jac_step_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of step at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_x_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.AnalyticDynJacMixin.jac_step_x">
+<code class="sig-name descname">jac_step_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#AnalyticDynJacMixin.jac_step_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.AnalyticDynJacMixin.jac_step_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of step at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_x_t (torch.tensor): (B, T, n, n) shaped jacobian of the next state</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.dynamics.AnalyticObsJacMixin">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">AnalyticObsJacMixin</code><a class="reference internal" href="../_modules/ceem/dynamics.html#AnalyticObsJacMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.AnalyticObsJacMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.dynamics.ObsJacMixin" title="ceem.dynamics.ObsJacMixin"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.ObsJacMixin</span></code></a></p>
+<p>Mixin for analytically computing observation jacobains</p>
+<dl class="py method">
+<dt id="ceem.dynamics.AnalyticObsJacMixin.jac_obs_theta">
+<code class="sig-name descname">jac_obs_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#AnalyticObsJacMixin.jac_obs_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.AnalyticObsJacMixin.jac_obs_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt theta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.AnalyticObsJacMixin.jac_obs_x">
+<code class="sig-name descname">jac_obs_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#AnalyticObsJacMixin.jac_obs_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.AnalyticObsJacMixin.jac_obs_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (torch.tensor): (B, T, m, n) shaped jacobian of the observation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.dynamics.C2DSystem">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">C2DSystem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">method</span></em>, <em class="sig-param"><span class="n">transforms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#C2DSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.C2DSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.dynamics.DiscreteDynamicalSystem" title="ceem.dynamics.DiscreteDynamicalSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.DiscreteDynamicalSystem</span></code></a>, <a class="reference internal" href="#ceem.dynamics.ContinuousDynamicalSystem" title="ceem.dynamics.ContinuousDynamicalSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.ContinuousDynamicalSystem</span></code></a></p>
+<p>Continuous to Discrete System</p>
+<dl class="py method">
+<dt id="ceem.dynamics.C2DSystem.step">
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#C2DSystem.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.C2DSystem.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next x_{t+1}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.IntTensor</em>) – (B, T,) shaped time</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) shaped next system states</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>x_next (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.dynamics.ContinuousDynamicalSystem">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">ContinuousDynamicalSystem</code><a class="reference internal" href="../_modules/ceem/dynamics.html#ContinuousDynamicalSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.ContinuousDynamicalSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.dynamics.ContinuousDynamicalSystem.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#ContinuousDynamicalSystem.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.ContinuousDynamicalSystem.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y_t</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.ContinuousDynamicalSystem.step_derivs">
+<code class="sig-name descname">step_derivs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#ContinuousDynamicalSystem.step_derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.ContinuousDynamicalSystem.step_derivs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns xdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system state derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.ContinuousDynamicalSystem.udim">
+<em class="property">property </em><code class="sig-name descname">udim</code><a class="headerlink" href="#ceem.dynamics.ContinuousDynamicalSystem.udim" title="Permalink to this definition">¶</a></dt>
+<dd><p>system input dimension
+returns None if unactuated</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.ContinuousDynamicalSystem.xdim">
+<em class="property">property </em><code class="sig-name descname">xdim</code><a class="headerlink" href="#ceem.dynamics.ContinuousDynamicalSystem.xdim" title="Permalink to this definition">¶</a></dt>
+<dd><p>system state dimensions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.ContinuousDynamicalSystem.ydim">
+<em class="property">property </em><code class="sig-name descname">ydim</code><a class="headerlink" href="#ceem.dynamics.ContinuousDynamicalSystem.ydim" title="Permalink to this definition">¶</a></dt>
+<dd><p>system observation dimension</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.dynamics.DiscreteDynamicalSystem">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">DiscreteDynamicalSystem</code><a class="reference internal" href="../_modules/ceem/dynamics.html#DiscreteDynamicalSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.DiscreteDynamicalSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.dynamics.DiscreteDynamicalSystem.observe">
+<code class="sig-name descname">observe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#DiscreteDynamicalSystem.observe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.DiscreteDynamicalSystem.observe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns y_t</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.DiscreteDynamicalSystem.step">
+<code class="sig-name descname">step</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#DiscreteDynamicalSystem.step"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.DiscreteDynamicalSystem.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns next x_{t+1}</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.IntTensor</em>) – (B, T,) shaped time</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) shaped next system states</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>x_next (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.DiscreteDynamicalSystem.udim">
+<em class="property">property </em><code class="sig-name descname">udim</code><a class="headerlink" href="#ceem.dynamics.DiscreteDynamicalSystem.udim" title="Permalink to this definition">¶</a></dt>
+<dd><p>system input dimension
+returns None if unactuated</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.DiscreteDynamicalSystem.xdim">
+<em class="property">property </em><code class="sig-name descname">xdim</code><a class="headerlink" href="#ceem.dynamics.DiscreteDynamicalSystem.xdim" title="Permalink to this definition">¶</a></dt>
+<dd><p>system state dimensions</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.DiscreteDynamicalSystem.ydim">
+<em class="property">property </em><code class="sig-name descname">ydim</code><a class="headerlink" href="#ceem.dynamics.DiscreteDynamicalSystem.ydim" title="Permalink to this definition">¶</a></dt>
+<dd><p>system observation dimension</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.dynamics.DynJacMixin">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">DynJacMixin</code><a class="reference internal" href="../_modules/ceem/dynamics.html#DynJacMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.DynJacMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Mixin for computing jacobians of dynamics.
+Defaults to using autograd.</p>
+<dl class="py method">
+<dt id="ceem.dynamics.DynJacMixin.jac_step_theta">
+<code class="sig-name descname">jac_step_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#DynJacMixin.jac_step_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.DynJacMixin.jac_step_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of step at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_x_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.DynJacMixin.jac_step_u">
+<code class="sig-name descname">jac_step_u</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#DynJacMixin.jac_step_u"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.DynJacMixin.jac_step_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of step at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_u (torch.tensor): (B, T, n, m) shaped jacobian of the next state</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.DynJacMixin.jac_step_x">
+<code class="sig-name descname">jac_step_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#DynJacMixin.jac_step_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.DynJacMixin.jac_step_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of step at time t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_x_t (torch.tensor): (B, T, n, n) shaped jacobian of the next state</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.dynamics.KinoDynamicalSystem">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">KinoDynamicalSystem</code><a class="reference internal" href="../_modules/ceem/dynamics.html#KinoDynamicalSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.KinoDynamicalSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.dynamics.ContinuousDynamicalSystem" title="ceem.dynamics.ContinuousDynamicalSystem"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.dynamics.ContinuousDynamicalSystem</span></code></a></p>
+<dl class="py method">
+<dt id="ceem.dynamics.KinoDynamicalSystem.dynamics">
+<code class="sig-name descname">dynamics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#KinoDynamicalSystem.dynamics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.KinoDynamicalSystem.dynamics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns qdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>q</strong> (<em>torch.tensor</em>) – (B, T, qn) shaped system generalized coordinates</p></li>
+<li><p><strong>v</strong> (<em>torch.tensor</em>) – (B, T, vn) shaped system generalized velocities</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system gen. velocity derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>vdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.KinoDynamicalSystem.kinematics">
+<code class="sig-name descname">kinematics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">q</span></em>, <em class="sig-param"><span class="n">v</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#KinoDynamicalSystem.kinematics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.KinoDynamicalSystem.kinematics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns qdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>q</strong> (<em>torch.tensor</em>) – (B, T, qn) shaped system generalized coordinates</p></li>
+<li><p><strong>v</strong> (<em>torch.tensor</em>) – (B, T, vn) shaped system generalized velocities</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system gen. coordinate derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>qdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.KinoDynamicalSystem.qdim">
+<em class="property">property </em><code class="sig-name descname">qdim</code><a class="headerlink" href="#ceem.dynamics.KinoDynamicalSystem.qdim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.KinoDynamicalSystem.step_derivs">
+<code class="sig-name descname">step_derivs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#KinoDynamicalSystem.step_derivs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.KinoDynamicalSystem.step_derivs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns xdot_t</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, qn+vn) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, n) system state derivatives</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>xdot (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.KinoDynamicalSystem.vdim">
+<em class="property">property </em><code class="sig-name descname">vdim</code><a class="headerlink" href="#ceem.dynamics.KinoDynamicalSystem.vdim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.KinoDynamicalSystem.xdim">
+<em class="property">property </em><code class="sig-name descname">xdim</code><a class="headerlink" href="#ceem.dynamics.KinoDynamicalSystem.xdim" title="Permalink to this definition">¶</a></dt>
+<dd><p>system state dimensions</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.dynamics.ObsJacMixin">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.dynamics.</code><code class="sig-name descname">ObsJacMixin</code><a class="reference internal" href="../_modules/ceem/dynamics.html#ObsJacMixin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.ObsJacMixin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Mixin for computing jacobians of observations.
+Defaults to using autograd.</p>
+<dl class="py method">
+<dt id="ceem.dynamics.ObsJacMixin.jac_obs_theta">
+<code class="sig-name descname">jac_obs_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#ObsJacMixin.jac_obs_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.ObsJacMixin.jac_obs_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt theta</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (seq of torch.tensor): jacobian of the observation wrt each nn.Parameter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.ObsJacMixin.jac_obs_u">
+<code class="sig-name descname">jac_obs_u</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#ObsJacMixin.jac_obs_u"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.ObsJacMixin.jac_obs_u" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt u</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (torch.tensor): (B, T, ydim, m) shaped jacobian of the observation</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.dynamics.ObsJacMixin.jac_obs_x">
+<code class="sig-name descname">jac_obs_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/dynamics.html#ObsJacMixin.jac_obs_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.dynamics.ObsJacMixin.jac_obs_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the Jacobian of observation wrt x</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>torch.tensor</em>) – (B, T,) shaped time indices</p></li>
+<li><p><strong>x</strong> (<em>torch.tensor</em>) – (B, T, n) shaped system states</p></li>
+<li><p><strong>u</strong> (<em>torch.tensor</em>) – (B, T, m) shaped control inputs</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_y_t (torch.tensor): (B, T, ydim, n) shaped jacobian of the observation</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.exp_utils">
+<span id="ceem-exp-utils-module"></span><h2>ceem.exp_utils module<a class="headerlink" href="#module-ceem.exp_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="ceem.exp_utils.compute_rms">
+<code class="sig-prename descclassname">ceem.exp_utils.</code><code class="sig-name descname">compute_rms</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">ypred</span></em>, <em class="sig-param"><span class="n">y_std</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/exp_utils.html#compute_rms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.exp_utils.compute_rms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute RMS prediction error on type of trajectory
+Args: y (torch.tensor): (B,T,m) tensor of true observations</p>
+<blockquote>
+<div><p>ypred (torch.tensor): (B,T,m) tensor of predicted observations
+demonames (list): len=T list of demo names
+y_std (torch.tensor): (m,) standard deviations</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B,) rms errors on each demo</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.exp_utils.gen_ypred_benchmark">
+<code class="sig-prename descclassname">ceem.exp_utils.</code><code class="sig-name descname">gen_ypred_benchmark</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">net</span></em>, <em class="sig-param"><span class="n">H</span></em>, <em class="sig-param"><span class="n">u</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/exp_utils.html#gen_ypred_benchmark"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.exp_utils.gen_ypred_benchmark" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.exp_utils.gen_ypred_model">
+<code class="sig-prename descclassname">ceem.exp_utils.</code><code class="sig-name descname">gen_ypred_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">s0fac</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">rfac</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">qfac</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/exp_utils.html#gen_ypred_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.exp_utils.gen_ypred_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.learner">
+<span id="ceem-learner-module"></span><h2>ceem.learner module<a class="headerlink" href="#module-ceem.learner" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="ceem.learner.ensure_default_torch_kwargs">
+<code class="sig-prename descclassname">ceem.learner.</code><code class="sig-name descname">ensure_default_torch_kwargs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">opt_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/learner.html#ensure_default_torch_kwargs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.learner.ensure_default_torch_kwargs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.learner.learner">
+<code class="sig-prename descclassname">ceem.learner.</code><code class="sig-name descname">learner</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">criterion_list</span></em>, <em class="sig-param"><span class="n">criterion_x_list</span></em>, <em class="sig-param"><span class="n">opt_list</span></em>, <em class="sig-param"><span class="n">params_list</span></em>, <em class="sig-param"><span class="n">crit_kwargs_list</span></em>, <em class="sig-param"><span class="n">opt_kwargs_list</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">subsetinds</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/learner.html#learner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.learner.learner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic learner function
+:param model:
+:type model: DiscreteDynamicalSystem
+:param criterion_list: list of Criterion instances
+:param criterion_x_list: list of torch.tensor to pass to criteria
+:param opt_list: list of optimizers (see OPTIMIZERS)
+:param params_list: list of list of parameters for each optimizer
+:param crit_kwargs_list: list of kwargs for each criterion
+:param opt_kwargs_list: kwargs to optimizer
+:param subsetinds: array specifying the batch indices to operate on</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>opt_result_list (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.learner.scipy_minimize">
+<code class="sig-prename descclassname">ceem.learner.</code><code class="sig-name descname">scipy_minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">criterion</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">criterion_x</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">crit_kwargs</span></em>, <em class="sig-param"><span class="n">opt_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/learner.html#scipy_minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.learner.scipy_minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper function to call scipy optimizers</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.learner.torch_minimize">
+<code class="sig-prename descclassname">ceem.learner.</code><code class="sig-name descname">torch_minimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">criterion</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">criterion_x</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">crit_kwargs</span></em>, <em class="sig-param"><span class="n">opt_kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/learner.html#torch_minimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.learner.torch_minimize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper function to use torch.optim optimizers</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.logger">
+<span id="ceem-logger-module"></span><h2>ceem.logger module<a class="headerlink" href="#module-ceem.logger" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="ceem.logger.critical">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">critical</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/logging.html#critical"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.critical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘CRITICAL’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.critical(“Houston, we have a %s”, “major disaster”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.debug">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">debug</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/logging.html#debug"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.debug" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘DEBUG’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.debug(“Houston, we have a %s”, “thorny problem”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.error">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">error</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/logging.html#error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘ERROR’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.error(“Houston, we have a %s”, “major problem”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.exception">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">exception</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="n">exc_info</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/logging.html#exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience method for logging an ERROR with exception information.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.info">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">info</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/logging.html#info"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘INFO’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.info(“Houston, we have a %s”, “interesting problem”, exc_info=1)</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.logger.scoped_setup">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">scoped_setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dirname</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">format_strs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">action</span><span class="o">=</span><span class="default_value">'b'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/logger.html#scoped_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.scoped_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.setLevel">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">setLevel</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">level</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceem.logger.setLevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the logging level of this logger.  level must be an int or a str.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.setup">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">setup</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dirname</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">format_strs</span><span class="o">=</span><span class="default_value">['stdout', 'tensorboard', 'csv']</span></em>, <em class="sig-param"><span class="n">action</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/logger.html#setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.setup" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.warn">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">warn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/logging.html#warn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.warn" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.logger.warning">
+<code class="sig-prename descclassname">ceem.logger.</code><code class="sig-name descname">warning</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">msg</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/logging.html#warning"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.logger.warning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log ‘msg % args’ with severity ‘WARNING’.</p>
+<p>To pass exception information, use the keyword argument exc_info with
+a true value, e.g.</p>
+<p>logger.warning(“Houston, we have a %s”, “bit of a problem”, exc_info=1)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.nested">
+<span id="ceem-nested-module"></span><h2>ceem.nested module<a class="headerlink" href="#module-ceem.nested" title="Permalink to this headline">¶</a></h2>
+<p>Tools for manipulating nested tuples, list, and dictionaries.</p>
+<dl class="py function">
+<dt id="ceem.nested.filter">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">predicate</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceem.nested.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select elements of a nested structure based on a predicate function.</p>
+<p>If multiple structures are provided as input, their structure must match and
+the function will be applied to corresponding groups of elements. The nested
+structure can consist of any combination of lists, tuples, and dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predicate</strong> – The function to determine whether an element should be kept.
+Receives one argument for every structure that is provided.</p></li>
+<li><p><strong>*structures</strong> – One of more nested structures.</p></li>
+<li><p><strong>flatten</strong> – Whether to flatten the resulting structure into a tuple. Keys of
+dictionaries will be discarded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nested structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nested.filter_">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">filter_</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">predicate</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nested.html#filter_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nested.filter_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select elements of a nested structure based on a predicate function.</p>
+<p>If multiple structures are provided as input, their structure must match and
+the function will be applied to corresponding groups of elements. The nested
+structure can consist of any combination of lists, tuples, and dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>predicate</strong> – The function to determine whether an element should be kept.
+Receives one argument for every structure that is provided.</p></li>
+<li><p><strong>*structures</strong> – One of more nested structures.</p></li>
+<li><p><strong>flatten</strong> – Whether to flatten the resulting structure into a tuple. Keys of
+dictionaries will be discarded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nested structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nested.flatten">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">flatten</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceem.nested.flatten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine all leaves of a nested structure into a tuple.</p>
+<p>The nested structure can consist of any combination of tuples, lists, and
+dicts. Dictionary keys will be discarded but values will ordered by the
+sorting of the keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Nested structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flat tuple.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nested.flatten_">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">flatten_</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">structure</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nested.html#flatten_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nested.flatten_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine all leaves of a nested structure into a tuple.</p>
+<p>The nested structure can consist of any combination of tuples, lists, and
+dicts. Dictionary keys will be discarded but values will ordered by the
+sorting of the keys.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>structure</strong> – Nested structure.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Flat tuple.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nested.map">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">map</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceem.nested.map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a function to every element in a nested structure.</p>
+<p>If multiple structures are provided as input, their structure must match and
+the function will be applied to corresponding groups of elements. The nested
+structure can consist of any combination of lists, tuples, and dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> – The function to apply to the elements of the structure. Receives
+one argument for every structure that is provided.</p></li>
+<li><p><strong>*structures</strong> – One of more nested structures.</p></li>
+<li><p><strong>flatten</strong> – Whether to flatten the resulting structure into a tuple. Keys of
+dictionaries will be discarded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nested structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nested.map_">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">map_</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">function</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nested.html#map_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nested.map_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a function to every element in a nested structure.</p>
+<p>If multiple structures are provided as input, their structure must match and
+the function will be applied to corresponding groups of elements. The nested
+structure can consist of any combination of lists, tuples, and dicts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>function</strong> – The function to apply to the elements of the structure. Receives
+one argument for every structure that is provided.</p></li>
+<li><p><strong>*structures</strong> – One of more nested structures.</p></li>
+<li><p><strong>flatten</strong> – Whether to flatten the resulting structure into a tuple. Keys of
+dictionaries will be discarded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nested structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nested.zip">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">zip</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceem.nested.zip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine corresponding elements in multiple nested structure to tuples.</p>
+<p>The nested structures can consist of any combination of lists, tuples, and
+dicts. All provided structures must have the same nesting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*structures</strong> – Nested structures.</p></li>
+<li><p><strong>flatten</strong> – Whether to flatten the resulting structure into a tuple. Keys of
+dictionaries will be discarded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nested structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nested.zip_">
+<code class="sig-prename descclassname">ceem.nested.</code><code class="sig-name descname">zip_</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">structures</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nested.html#zip_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nested.zip_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Combine corresponding elements in multiple nested structure to tuples.</p>
+<p>The nested structures can consist of any combination of lists, tuples, and
+dicts. All provided structures must have the same nesting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*structures</strong> – Nested structures.</p></li>
+<li><p><strong>flatten</strong> – Whether to flatten the resulting structure into a tuple. Keys of
+dictionaries will be discarded.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Nested structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.nn">
+<span id="ceem-nn-module"></span><h2>ceem.nn module<a class="headerlink" href="#module-ceem.nn" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.nn.LNMLP">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.nn.</code><code class="sig-name descname">LNMLP</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_size</span></em>, <em class="sig-param"><span class="n">hidden_sizes</span></em>, <em class="sig-param"><span class="n">output_size</span></em>, <em class="sig-param"><span class="n">activation</span><span class="o">=</span><span class="default_value">'relu'</span></em>, <em class="sig-param"><span class="n">gain</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">ln</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nn.html#LNMLP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nn.LNMLP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
+<dl class="py method">
+<dt id="ceem.nn.LNMLP.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inp</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nn.html#LNMLP.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nn.LNMLP.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.nn.LNMLP.reset_params">
+<code class="sig-name descname">reset_params</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">gain</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nn.html#LNMLP.reset_params"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nn.LNMLP.reset_params" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nn.init_normc_">
+<code class="sig-prename descclassname">ceem.nn.</code><code class="sig-name descname">init_normc_</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weight</span></em>, <em class="sig-param"><span class="n">gain</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nn.html#init_normc_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nn.init_normc_" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.nn.weights_init_mlp">
+<code class="sig-prename descclassname">ceem.nn.</code><code class="sig-name descname">weights_init_mlp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">m</span></em>, <em class="sig-param"><span class="n">gain</span><span class="o">=</span><span class="default_value">1.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/nn.html#weights_init_mlp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.nn.weights_init_mlp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.odesolver">
+<span id="ceem-odesolver-module"></span><h2>ceem.odesolver module<a class="headerlink" href="#module-ceem.odesolver" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.odesolver.Euler">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.odesolver.</code><code class="sig-name descname">Euler</code><a class="reference internal" href="../_modules/ceem/odesolver.html#Euler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.Euler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.odesolver.Euler.order">
+<em class="property">property </em><code class="sig-name descname">order</code><a class="headerlink" href="#ceem.odesolver.Euler.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.odesolver.Euler.step_func">
+<em class="property">static </em><code class="sig-name descname">step_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">transforms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/odesolver.html#Euler.step_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.Euler.step_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.odesolver.Midpoint">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.odesolver.</code><code class="sig-name descname">Midpoint</code><a class="reference internal" href="../_modules/ceem/odesolver.html#Midpoint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.Midpoint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.odesolver.Midpoint.order">
+<em class="property">property </em><code class="sig-name descname">order</code><a class="headerlink" href="#ceem.odesolver.Midpoint.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.odesolver.Midpoint.step_func">
+<em class="property">static </em><code class="sig-name descname">step_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">transforms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/odesolver.html#Midpoint.step_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.Midpoint.step_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.odesolver.RK4">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.odesolver.</code><code class="sig-name descname">RK4</code><a class="reference internal" href="../_modules/ceem/odesolver.html#RK4"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.RK4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.odesolver.RK4.order">
+<em class="property">property </em><code class="sig-name descname">order</code><a class="headerlink" href="#ceem.odesolver.RK4.order" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.odesolver.RK4.step_func">
+<em class="property">static </em><code class="sig-name descname">step_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">u</span></em>, <em class="sig-param"><span class="n">transforms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/odesolver.html#RK4.step_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.RK4.step_func" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.odesolver.odestep">
+<code class="sig-prename descclassname">ceem.odesolver.</code><code class="sig-name descname">odestep</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">y0</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'midpoint'</span></em>, <em class="sig-param"><span class="n">transforms</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/odesolver.html#odestep"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.odestep" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.odesolver.rk4_alt_step_func">
+<code class="sig-prename descclassname">ceem.odesolver.</code><code class="sig-name descname">rk4_alt_step_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">dt</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">k1</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/odesolver.html#rk4_alt_step_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.odesolver.rk4_alt_step_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smaller error with slightly more compute.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.opt_criteria">
+<span id="ceem-opt-criteria-module"></span><h2>ceem.opt_criteria module<a class="headerlink" href="#module-ceem.opt_criteria" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.opt_criteria.BasicGroupSOSCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">BasicGroupSOSCriterion</code><a class="reference internal" href="../_modules/ceem/opt_criteria.html#BasicGroupSOSCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.BasicGroupSOSCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.SOSCriterion" title="ceem.opt_criteria.SOSCriterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.SOSCriterion</span></code></a></p>
+<p>Group of SOSCriterion instances</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.BlockSparseGroupSOSCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">BlockSparseGroupSOSCriterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">criteria</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#BlockSparseGroupSOSCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.BlockSparseGroupSOSCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.BasicGroupSOSCriterion" title="ceem.opt_criteria.BasicGroupSOSCriterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.BasicGroupSOSCriterion</span></code></a></p>
+<p>Group of SOSCriterion instances with careful design of the sparsity pattern in the Jacobian matrix.
+All SOSCriterion but the last one must have block diagonal jacobians and a <cite>.scaled_jac_x_diag</cite> method.
+The last SOSCriterion, typically the dynamics, has two blocks on the primary and first upper diagonal.</p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.BlockSparseGroupSOSCriterion.jac_resid_x">
+<code class="sig-name descname">jac_resid_x</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">x</em>, <em class="sig-param">sparse_format=&lt;class 'scipy.sparse.bsr.bsr_matrix'&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#BlockSparseGroupSOSCriterion.jac_resid_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.BlockSparseGroupSOSCriterion.jac_resid_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing residuals jacobian wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param sparse: if True returns a (nresid,B*T*n) sparse_format
+:type sparse: bool
+:param sparse_format: sparse matrix format
+:type sparse_format: scipy.sparse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_resid_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.BlockSparseGroupSOSCriterion.residuals">
+<code class="sig-name descname">residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#BlockSparseGroupSOSCriterion.residuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.BlockSparseGroupSOSCriterion.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing SOS residuals
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,) residuals</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>residuals (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.Criterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">Criterion</code><a class="reference internal" href="../_modules/ceem/opt_criteria.html#Criterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.Criterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.Criterion.batched_forward">
+<code class="sig-name descname">batched_forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#Criterion.batched_forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.Criterion.batched_forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing criterion, not summed over batch
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B,) criterion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>y (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.Criterion.batched_sample_forward">
+<code class="sig-name descname">batched_sample_forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#Criterion.batched_sample_forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.Criterion.batched_sample_forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing criterion, not summed over batch
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,N,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B,N) criterion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>y (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.Criterion.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#Criterion.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.Criterion.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing criterion
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>scalar criterion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>criterion (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.Criterion.jac_theta">
+<code class="sig-name descname">jac_theta</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#Criterion.jac_theta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.Criterion.jac_theta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for accumulating criterion jacobian on parameters
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param return_grad: if True, returns grad else accumulates to leaf nodes
+:type return_grad: bool</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.Criterion.jac_x">
+<code class="sig-name descname">jac_x</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#Criterion.jac_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.Criterion.jac_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing jacobian of criterion wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.GaussianDynamicsCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">GaussianDynamicsCriterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Sig_w_inv</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianDynamicsCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianDynamicsCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.SOSCriterion" title="ceem.opt_criteria.SOSCriterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.SOSCriterion</span></code></a></p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianDynamicsCriterion.apply_inds">
+<code class="sig-name descname">apply_inds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianDynamicsCriterion.apply_inds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianDynamicsCriterion.apply_inds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianDynamicsCriterion.jac_resid_x">
+<code class="sig-name descname">jac_resid_x</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">x</em>, <em class="sig-param">sparse=False</em>, <em class="sig-param">sparse_format=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;</em>, <em class="sig-param">inds=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianDynamicsCriterion.jac_resid_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianDynamicsCriterion.jac_resid_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing residuals jacobian wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param sparse: if True returns a (nresid,B*T*n) sparse_format
+:type sparse: bool
+:param sparse_format: sparse matrix format
+:type sparse_format: scipy.sparse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_resid_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianDynamicsCriterion.residuals">
+<code class="sig-name descname">residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianDynamicsCriterion.residuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianDynamicsCriterion.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing SOS residuals
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,) residuals</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>residuals (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianDynamicsCriterion.scaled_jac_x_diag">
+<code class="sig-name descname">scaled_jac_x_diag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianDynamicsCriterion.scaled_jac_x_diag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianDynamicsCriterion.scaled_jac_x_diag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the diagonal blocs of the Jacobian
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_resid_x (lambda): lambda function of (b,t) that returns 2 torch.tensors of dimension (n,n)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.GaussianObservationCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">GaussianObservationCriterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">Sig_y_inv</span></em>, <em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">u</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianObservationCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianObservationCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.SOSCriterion" title="ceem.opt_criteria.SOSCriterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.SOSCriterion</span></code></a></p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianObservationCriterion.apply_inds">
+<code class="sig-name descname">apply_inds</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianObservationCriterion.apply_inds"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianObservationCriterion.apply_inds" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianObservationCriterion.jac_resid_x">
+<code class="sig-name descname">jac_resid_x</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">x</em>, <em class="sig-param">sparse=False</em>, <em class="sig-param">sparse_format=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;</em>, <em class="sig-param">inds=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianObservationCriterion.jac_resid_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianObservationCriterion.jac_resid_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing residuals jacobian wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param sparse: if True returns a (nresid,B*T*n) sparse_format
+:type sparse: bool
+:param sparse_format: sparse matrix format
+:type sparse_format: scipy.sparse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_resid_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianObservationCriterion.residuals">
+<code class="sig-name descname">residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianObservationCriterion.residuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianObservationCriterion.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing SOS residuals
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,) residuals</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>residuals (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianObservationCriterion.scaled_jac_x_diag">
+<code class="sig-name descname">scaled_jac_x_diag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianObservationCriterion.scaled_jac_x_diag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianObservationCriterion.scaled_jac_x_diag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the diagonal blocs of the Jacobian
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_resid_x (lambda): lambda function of (b,t) that returns 2 torch.tensors of dimension (n,n)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.GaussianX0Criterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">GaussianX0Criterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x0</span></em>, <em class="sig-param"><span class="n">Sig_x0_inv</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianX0Criterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianX0Criterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.SOSCriterion" title="ceem.opt_criteria.SOSCriterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.SOSCriterion</span></code></a></p>
+<p>Soft Trust Region on states</p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianX0Criterion.jac_resid_x">
+<code class="sig-name descname">jac_resid_x</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">x</em>, <em class="sig-param">sparse=False</em>, <em class="sig-param">sparse_format=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianX0Criterion.jac_resid_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianX0Criterion.jac_resid_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing residuals jacobian wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param sparse: if True returns a (nresid,B*T*n) sparse_format
+:type sparse: bool
+:param sparse_format: sparse matrix format
+:type sparse_format: scipy.sparse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_resid_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GaussianX0Criterion.residuals">
+<code class="sig-name descname">residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GaussianX0Criterion.residuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GaussianX0Criterion.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing SOS residuals
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,) residuals</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>residuals (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.GroupCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">GroupCriterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">criteria</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GroupCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GroupCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.Criterion" title="ceem.opt_criteria.Criterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.Criterion</span></code></a></p>
+<p>A group of Criterion</p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.GroupCriterion.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GroupCriterion.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GroupCriterion.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing criterion
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>scalar criterion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>criterion (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.GroupSOSCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">GroupSOSCriterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">criteria</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GroupSOSCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GroupSOSCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.BasicGroupSOSCriterion" title="ceem.opt_criteria.BasicGroupSOSCriterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.BasicGroupSOSCriterion</span></code></a></p>
+<p>Group of SOSCriterion instances</p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.GroupSOSCriterion.jac_resid_x">
+<code class="sig-name descname">jac_resid_x</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">x</em>, <em class="sig-param">sparse=False</em>, <em class="sig-param">sparse_format=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GroupSOSCriterion.jac_resid_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GroupSOSCriterion.jac_resid_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing residuals jacobian wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param sparse: if True returns a (nresid,B*T*n) sparse_format
+:type sparse: bool
+:param sparse_format: sparse matrix format
+:type sparse_format: scipy.sparse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_resid_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.GroupSOSCriterion.residuals">
+<code class="sig-name descname">residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#GroupSOSCriterion.residuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.GroupSOSCriterion.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing SOS residuals
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,) residuals</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>residuals (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.SOSCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">SOSCriterion</code><a class="reference internal" href="../_modules/ceem/opt_criteria.html#SOSCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.SOSCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.Criterion" title="ceem.opt_criteria.Criterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.Criterion</span></code></a></p>
+<p>Sum-of-squares criterion</p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.SOSCriterion.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#SOSCriterion.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.SOSCriterion.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing criterion
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>scalar criterion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>criterion (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.SOSCriterion.jac_resid_x">
+<code class="sig-name descname">jac_resid_x</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">x</em>, <em class="sig-param">sparse=False</em>, <em class="sig-param">sparse_format=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#SOSCriterion.jac_resid_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.SOSCriterion.jac_resid_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing residuals jacobian wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param sparse: if True returns a (nresid,B*T*n) sparse_format
+:type sparse: bool
+:param sparse_format: sparse matrix format
+:type sparse_format: scipy.sparse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_resid_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.SOSCriterion.residuals">
+<code class="sig-name descname">residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#SOSCriterion.residuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.SOSCriterion.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing SOS residuals
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,) residuals</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>residuals (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.SOSCriterion.scaled_jac_x_diag">
+<code class="sig-name descname">scaled_jac_x_diag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">sparse</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#SOSCriterion.scaled_jac_x_diag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.SOSCriterion.scaled_jac_x_diag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the diagonal blocs of the Jacobian
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_resid_x (lambda): lambda function of (b,t) that returns 2 torch.tensors of dimension (n,n)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.STRParamCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">STRParamCriterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#STRParamCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.STRParamCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.Criterion" title="ceem.opt_criteria.Criterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.Criterion</span></code></a></p>
+<p>Soft Trust Region on params criterion</p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.STRParamCriterion.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#STRParamCriterion.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.STRParamCriterion.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing criterion
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>scalar criterion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>criterion (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.opt_criteria.STRStateCriterion">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.opt_criteria.</code><code class="sig-name descname">STRStateCriterion</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rho</span></em>, <em class="sig-param"><span class="n">x0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#STRStateCriterion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.STRStateCriterion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ceem.opt_criteria.SOSCriterion" title="ceem.opt_criteria.SOSCriterion"><code class="xref py py-class docutils literal notranslate"><span class="pre">ceem.opt_criteria.SOSCriterion</span></code></a></p>
+<p>Soft Trust Region on states</p>
+<dl class="py method">
+<dt id="ceem.opt_criteria.STRStateCriterion.jac_resid_x">
+<code class="sig-name descname">jac_resid_x</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">x</em>, <em class="sig-param">sparse=False</em>, <em class="sig-param">sparse_format=&lt;class 'scipy.sparse.csr.csr_matrix'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#STRStateCriterion.jac_resid_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.STRStateCriterion.jac_resid_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for computing residuals jacobian wrt x
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor
+:param sparse: if True returns a (nresid,B*T*n) sparse_format
+:type sparse: bool
+:param sparse_format: sparse matrix format
+:type sparse_format: scipy.sparse</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,B,T,n) criterion jacobian</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>jac_resid_x (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.STRStateCriterion.residuals">
+<code class="sig-name descname">residuals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">flatten</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#STRStateCriterion.residuals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.STRStateCriterion.residuals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Forward method for computing SOS residuals
+:param model:
+:type model: DiscreteDynamicalSystem
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(nresid,) residuals</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>residuals (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.opt_criteria.STRStateCriterion.scaled_jac_x_diag">
+<code class="sig-name descname">scaled_jac_x_diag</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">inds</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/opt_criteria.html#STRStateCriterion.scaled_jac_x_diag"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.opt_criteria.STRStateCriterion.scaled_jac_x_diag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the diagonal blocs of the Jacobian
+:param x: (B,T,n) system states
+:type x: torch.tensor</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>jac_resid_x (lambda): lambda function of (b,t) that returns 2 torch.tensors of dimension (n,n)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.particleem">
+<span id="ceem-particleem-module"></span><h2>ceem.particleem module<a class="headerlink" href="#module-ceem.particleem" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="ceem.particleem.HarmonicDecayScheduler">
+<code class="sig-prename descclassname">ceem.particleem.</code><code class="sig-name descname">HarmonicDecayScheduler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">k</span></em>, <em class="sig-param"><span class="n">a</span><span class="o">=</span><span class="default_value">50.0</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#HarmonicDecayScheduler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.HarmonicDecayScheduler" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="ceem.particleem.Resampler">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.particleem.</code><code class="sig-name descname">Resampler</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">method</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#Resampler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.Resampler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.particleem.Resampler.dist">
+<code class="sig-name descname">dist</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#Resampler.dist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.Resampler.dist" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.Resampler.icdf">
+<code class="sig-name descname">icdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span></em>, <em class="sig-param"><span class="n">cds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#Resampler.icdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.Resampler.icdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Linear-time inverse CDF for a categorical distribution
+:param weights: (B, N) particle weights
+:type weights: torch.tensor
+:param cds: (B,N) ascending ordered cumulative densities
+:type cds: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B, N) particle indices</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>indices (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.Resampler.multinomial">
+<code class="sig-name descname">multinomial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#Resampler.multinomial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.Resampler.multinomial" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.Resampler.stratified">
+<code class="sig-name descname">stratified</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#Resampler.stratified"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.Resampler.stratified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.Resampler.systematic">
+<code class="sig-name descname">systematic</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">weights</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#Resampler.systematic"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.Resampler.systematic" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.particleem.SAEMTrainer">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.particleem.</code><code class="sig-name descname">SAEMTrainer</code><span class="sig-paren">(</span><em class="sig-param">fapf</em>, <em class="sig-param">y</em>, <em class="sig-param">gamma_sched=&lt;function HarmonicDecayScheduler&gt;</em>, <em class="sig-param">max_k=100</em>, <em class="sig-param">xlen_cutoff=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#SAEMTrainer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.SAEMTrainer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.particleem.SAEMTrainer.recursive_Q">
+<code class="sig-name descname">recursive_Q</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span></em>, <em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">k_</span></em>, <em class="sig-param"><span class="n">Q</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#SAEMTrainer.recursive_Q"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.SAEMTrainer.recursive_Q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recursive computation of Q
+:param x: [(B,N,T,n)] iid smoothed trajs
+:type x: list of torch.tensor
+:param y: (B,T,m) observations
+:type y: torch.tensor
+:param <a href="#id1"><span class="problematic" id="id2">k_</span></a>: call level
+:type <a href="#id3"><span class="problematic" id="id4">k_</span></a>: int
+:param Q: (1,) Q(theta) or 0.
+:type Q: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(1,) Q(theta)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Q (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.SAEMTrainer.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">callbacks</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#SAEMTrainer.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.SAEMTrainer.train" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.particleem.faPF">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.particleem.</code><code class="sig-name descname">faPF</code><span class="sig-paren">(</span><em class="sig-param">N</em>, <em class="sig-param">system</em>, <em class="sig-param">Q</em>, <em class="sig-param">R</em>, <em class="sig-param">Px0</em>, <em class="sig-param">x0mean=None</em>, <em class="sig-param">resampler=&lt;ceem.particleem.Resampler object&gt;</em>, <em class="sig-param">FFBSi_N=None</em>, <em class="sig-param">burnin_T=None</em>, <em class="sig-param">ess_frac=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.particleem.faPF.FFBSi">
+<code class="sig-name descname">FFBSi</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.FFBSi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.FFBSi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample trajectories from JSD using FFBSi
+:param x: (B,N,T,n) filtered states
+:type x: torch.tenosr
+:param w: (B,N,T) filtered weights
+:type w: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B, Ns, T, n) sampled state trajs</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>xsamps (torch.tesnor)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://users.isy.liu.se/rt/schon/Publications/LindstenS2013.pdf">http://users.isy.liu.se/rt/schon/Publications/LindstenS2013.pdf</a>
+Algorithm 4</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.FFBSm">
+<code class="sig-name descname">FFBSm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">w</span></em>, <em class="sig-param"><span class="n">return_wij_tN</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.FFBSm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.FFBSm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the smoothing marginal distributions
+:param y: (B,T,m) observartions
+:type y: torch.tensor
+:param x: (B,N,T,n) filtered states
+:type x: torch.tenosr
+:param w: (B,N,T) filtered weights
+:type w: torch.tensor
+:param return_wij_tN: return pair-wise smoothing weights
+:type return_wij_tN: bool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B,N,T,n) smoothed states
+wsm (torch.tensor): (B,N,T) smoothed weights
+wij_tN (torch.tensor): (B,N,N,T) pairwise smoothing weights</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>xsm (torch.tenosr)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Implemenation of Forward Filtering-Backward Smoothing
+<a class="reference external" href="https://www.stats.ox.ac.uk/~doucet/doucet_johansen_tutorialPF2011.pdf">https://www.stats.ox.ac.uk/~doucet/doucet_johansen_tutorialPF2011.pdf</a>
+Equation 49</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.Q_JSD_marginals">
+<code class="sig-name descname">Q_JSD_marginals</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">w</span></em>, <em class="sig-param"><span class="n">wij_tN</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.Q_JSD_marginals"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.Q_JSD_marginals" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute Q(theta, theta_k) using approximate JSD marginals
+:param y: (B,T,m) observartions
+:type y: torch.tensor
+:param x: (B,N,T,n) filtered states
+:type x: torch.tenosr
+:param w: (B,N,T) filtered weights
+:type w: torch.tensor
+:param wij_tN: (B,N,N,T-1) pair-wise smoothing weights
+:type wij_tN: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(1,) Q(theta, theta_k)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Q (torch.tensor)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>See <a class="reference external" href="http://user.it.uu.se/~thosc112/pubpdf/schonwn2011-2.pdf">http://user.it.uu.se/~thosc112/pubpdf/schonwn2011-2.pdf</a>
+Equations 48-49</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.Q_MCEM">
+<code class="sig-name descname">Q_MCEM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.Q_MCEM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.Q_MCEM" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Compute Monte-Carlo appx Q(theta, theta_k)</dt><dd><p>using iid x_1:T ~ p(x_1:T|y_1:T)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>torch.tensor</em>) – (B,T,m) observartions</p></li>
+<li><p><strong>x</strong> (<em>torch.tenosr</em>) – (B,N,T,n) sampled state trajs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(1,) Q(theta, theta_k)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Q (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.compute_mean">
+<code class="sig-name descname">compute_mean</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.compute_mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.compute_mean" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes mean trajectory from weighted samples
+:param x: (B,N,T,n) filtered states
+:type x: torch.tenosr
+:param w: (B,N,T) filtered weights
+:type w: torch.tensor</p>
+<dl class="simple">
+<dt>Returns</dt><dd><p>xmean (torch.tensor): (B,T,n) mean states</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.fa_loglikelihood">
+<code class="sig-name descname">fa_loglikelihood</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em>, <em class="sig-param"><span class="n">xfilt</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.fa_loglikelihood"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.fa_loglikelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates log-likehood of filtered particles from faPF
+Eqn 39 from <a class="reference external" href="https://arxiv.org/pdf/1703.02419.pdf">https://arxiv.org/pdf/1703.02419.pdf</a>
+:param y: (B,T,m) observartions
+:type y: torch.tensor
+:param xfilt: (B,N,T,n) filtered states
+:type xfilt: torch.tenosr</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(1,) log p(y_1:T | x_filt, theta)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>z (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.filter">
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.filter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run filter
+:param y: (B,T,m) observartions
+:type y: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B,N,T,n) filtered states
+w (torch.tensor): (B,N,T) filtered weights</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>x (torch.tenosr)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.get_resampling_distribution">
+<code class="sig-name descname">get_resampling_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">xtm1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.get_resampling_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.get_resampling_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resampling distribution p(yt | xt-1)
+:param t: time-index
+:type t: int
+:param xtm1: (B,N,1,n) state-particles
+:type xtm1: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>p(yt | xt-1)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dist (MultivariateGaussian)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Implementation of
+<a class="reference external" href="https://link.springer.com/content/pdf/10.1023%2FA%3A1008935410038.pdf">https://link.springer.com/content/pdf/10.1023%2FA%3A1008935410038.pdf</a>
+Equation 14</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.get_sampling_distribution">
+<code class="sig-name descname">get_sampling_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">t</span></em>, <em class="sig-param"><span class="n">xtm1</span></em>, <em class="sig-param"><span class="n">yt</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.get_sampling_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.get_sampling_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sampling distribution p(xt | xt-1, yt)
+:param t: time-index
+:type t: int
+:param xtm1: (B,N,1,n) state-particles
+:type xtm1: torch.tensor
+:param yt: (B,1,m) observation
+:type yt: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>p(xt | xt-1, yt)</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dist (MultivariateGaussian)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Implementation of
+<a class="reference external" href="https://link.springer.com/content/pdf/10.1023%2FA%3A1008935410038.pdf">https://link.springer.com/content/pdf/10.1023%2FA%3A1008935410038.pdf</a>
+Equation 18-20</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="ceem.particleem.faPF.sample_initial">
+<code class="sig-name descname">sample_initial</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y0</span></em>, <em class="sig-param"><span class="n">N</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#faPF.sample_initial"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.faPF.sample_initial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sample from p(x0 | y0)
+:param y0: (B,1,m) initial observation
+:type y0: torch.tensor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>(B,N,1,n) samples of x0</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>x0 (torch.tensor)</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Eqns 352-354 <a class="reference external" href="https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf">https://www.math.uwaterloo.ca/~hwolkowi/matrixcookbook.pdf</a></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.particleem.scipyoptimizer">
+<code class="sig-prename descclassname">ceem.particleem.</code><code class="sig-name descname">scipyoptimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objfun</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">method</span><span class="o">=</span><span class="default_value">'BFGS'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#scipyoptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.scipyoptimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.particleem.torchoptimizer">
+<code class="sig-prename descclassname">ceem.particleem.</code><code class="sig-name descname">torchoptimizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objfun</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">lr</span><span class="o">=</span><span class="default_value">0.01</span></em>, <em class="sig-param"><span class="n">nepochs</span><span class="o">=</span><span class="default_value">10</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/particleem.html#torchoptimizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.particleem.torchoptimizer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem.smoother">
+<span id="ceem-smoother-module"></span><h2>ceem.smoother module<a class="headerlink" href="#module-ceem.smoother" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="ceem.smoother.EKF">
+<code class="sig-prename descclassname">ceem.smoother.</code><code class="sig-name descname">EKF</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x0</span></em>, <em class="sig-param"><span class="n">y_T</span></em>, <em class="sig-param"><span class="n">u_T</span></em>, <em class="sig-param"><span class="n">sigma0</span></em>, <em class="sig-param"><span class="n">Q</span></em>, <em class="sig-param"><span class="n">R</span></em>, <em class="sig-param"><span class="n">system</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#EKF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.EKF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extended Kalman filter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x0</strong> (<em>torch.tensor</em>) – (B, xdim) initial system states</p></li>
+<li><p><strong>y_T</strong> (<em>torch.tensor</em>) – (B, T, ydim) observations</p></li>
+<li><p><strong>u_T</strong> (<em>torch.tensor</em>) – (B, T, udim) controls</p></li>
+<li><p><strong>sigma0</strong> (<em>torch.tensor</em>) – (xdim, xdim) initial state covariance</p></li>
+<li><p><strong>dyn_err</strong> (<em>torch.tensor</em>) – (xdim) dynamics error mean</p></li>
+<li><p><strong>obs_err</strong> (<em>torch.tensor</em>) – (xdim) observation error mean</p></li>
+<li><p><strong>Q</strong> (<em>torch.tensor</em>) – (xdim, xdim) dynamics error covariance</p></li>
+<li><p><strong>R</strong> (<em>torch.tensor</em>) – (ydim, ydim) observation error covariance</p></li>
+<li><p><strong>system</strong> (<a class="reference internal" href="#ceem.dynamics.DiscreteDynamicalSystem" title="ceem.dynamics.DiscreteDynamicalSystem"><em>DiscreteDynamicalSystem</em></a>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(B, T, xdim) system states
+y_pred (torch.tensor): (B, T, ydim) predicted observations before state correction</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>x_filt (torch.tensor)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.smoother.NLSsmoother">
+<code class="sig-prename descclassname">ceem.smoother.</code><code class="sig-name descname">NLSsmoother</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x0</span></em>, <em class="sig-param"><span class="n">criterion</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">solver_kwargs</span><span class="o">=</span><span class="default_value">{'verbose': 2}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#NLSsmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.NLSsmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smoothing with Gauss-Newton based approach
+:param x0: (1,T,n) system states
+:type x0: torch.tensor
+:param criterion: criterion to optimize
+:type criterion: SOSCriterion
+:param system:
+:type system: DiscreteDynamicalSystem
+:param solver_kwargs: options for scipy.optimize.least_squares</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.smoother.ParticleSmoother">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.smoother.</code><code class="sig-name descname">ParticleSmoother</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">N</span></em>, <em class="sig-param"><span class="n">system</span></em>, <em class="sig-param"><span class="n">obsll</span></em>, <em class="sig-param"><span class="n">Q</span></em>, <em class="sig-param"><span class="n">Px0</span></em>, <em class="sig-param"><span class="n">x0mean</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#ParticleSmoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.ParticleSmoother" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.smoother.ParticleSmoother.filter">
+<code class="sig-name descname">filter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#ParticleSmoother.filter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.ParticleSmoother.filter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.smoother.ParticleSmoother.get_smooth_mean">
+<code class="sig-name descname">get_smooth_mean</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#ParticleSmoother.get_smooth_mean"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.ParticleSmoother.get_smooth_mean" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.smoother.ParticleSmoother.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#ParticleSmoother.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.ParticleSmoother.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="ceem.smoother.ParticleSmoother.smoother">
+<code class="sig-name descname">smoother</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">w</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#ParticleSmoother.smoother"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.ParticleSmoother.smoother" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="ceem.smoother.ParticleSmootherSystemWrapper">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.smoother.</code><code class="sig-name descname">ParticleSmootherSystemWrapper</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sys</span></em>, <em class="sig-param"><span class="n">R</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#ParticleSmootherSystemWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.ParticleSmootherSystemWrapper" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt id="ceem.smoother.ParticleSmootherSystemWrapper.obsll">
+<code class="sig-name descname">obsll</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/smoother.html#ParticleSmootherSystemWrapper.obsll"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.smoother.ParticleSmootherSystemWrapper.obsll" title="Permalink to this definition">¶</a></dt>
+<dd><p>x (torch.tensor): (N,n) particles
+y (torch.tensor): (1,m) observation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.smoother.choice">
+<code class="sig-prename descclassname">ceem.smoother.</code><code class="sig-name descname">choice</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a</span></em>, <em class="sig-param"><span class="n">size</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">replace</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">p</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#ceem.smoother.choice" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a random sample from a given 1-D array</p>
+<blockquote>
+<div><div class="versionadded">
+<p><span class="versionmodified added">New in version 1.7.0.</span></p>
+</div>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>New code should use the <code class="docutils literal notranslate"><span class="pre">choice</span></code> method of a <code class="docutils literal notranslate"><span class="pre">default_rng()</span></code>
+instance instead; see <cite>random-quick-start</cite>.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>1-D array-like</em><em> or </em><em>int</em>) – If an ndarray, a random sample is generated from its elements.
+If an int, the random sample is generated as if a were np.arange(a)</p></li>
+<li><p><strong>size</strong> (<em>int</em><em> or </em><em>tuple of ints</em><em>, </em><em>optional</em>) – Output shape.  If the given shape is, e.g., <code class="docutils literal notranslate"><span class="pre">(m,</span> <span class="pre">n,</span> <span class="pre">k)</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">m</span> <span class="pre">*</span> <span class="pre">n</span> <span class="pre">*</span> <span class="pre">k</span></code> samples are drawn.  Default is None, in which case a
+single value is returned.</p></li>
+<li><p><strong>replace</strong> (<em>boolean</em><em>, </em><em>optional</em>) – Whether the sample is with or without replacement</p></li>
+<li><p><strong>p</strong> (<em>1-D array-like</em><em>, </em><em>optional</em>) – The probabilities associated with each entry in a.
+If not given the sample assumes a uniform distribution over all
+entries in a.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>samples</strong> – The generated random samples</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>single item or ndarray</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If a is an int and less than zero, if a or p are not 1-dimensional,
+    if a is an array-like of size 0, if p is not a vector of
+    probabilities, if a and p have different lengths, or if
+    replace=False and the sample size is greater than the population
+    size</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-func docutils literal notranslate"><span class="pre">randint()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">shuffle()</span></code>, <code class="xref py py-func docutils literal notranslate"><span class="pre">permutation()</span></code></p>
+<dl class="simple">
+<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">Generator.choice()</span></code></dt><dd><p>which should be used in new code</p>
+</dd>
+</dl>
+</div>
+<p class="rubric">Examples</p>
+<p>Generate a uniform random sample from np.arange(5) of size 3:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="go">array([0, 3, 4]) # random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#This is equivalent to np.random.randint(0,5,3)</span>
+</pre></div>
+</div>
+<p>Generate a non-uniform random sample from np.arange(5) of size 3:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">array([3, 3, 0]) # random</span>
+</pre></div>
+</div>
+<p>Generate a uniform random sample from np.arange(5) of size 3 without
+replacement:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="go">array([3,1,0]) # random</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1">#This is equivalent to np.random.permutation(np.arange(5))[:3]</span>
+</pre></div>
+</div>
+<p>Generate a non-uniform random sample from np.arange(5) of size
+3 without replacement:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="go">array([2, 3, 0]) # random</span>
+</pre></div>
+</div>
+<p>Any of the above can be repeated with an arbitrary array-like
+instead of just integers. For instance:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">aa_milne_arr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pooh&#39;</span><span class="p">,</span> <span class="s1">&#39;rabbit&#39;</span><span class="p">,</span> <span class="s1">&#39;piglet&#39;</span><span class="p">,</span> <span class="s1">&#39;Christopher&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">aa_milne_arr</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>
+<span class="go">array([&#39;pooh&#39;, &#39;pooh&#39;, &#39;pooh&#39;, &#39;Christopher&#39;, &#39;piglet&#39;], # random</span>
+<span class="go">      dtype=&#39;&lt;U11&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="module-ceem.utils">
+<span id="ceem-utils-module"></span><h2>ceem.utils module<a class="headerlink" href="#module-ceem.utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="ceem.utils.Timer">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">Timer</code><a class="reference internal" href="../_modules/ceem/utils.html#Timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.Timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.utils.disable_grad">
+<code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">disable_grad</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">vs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/utils.html#disable_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.disable_grad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.utils.get_grad_norm">
+<code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">get_grad_norm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/utils.html#get_grad_norm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.get_grad_norm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="ceem.utils.objectview">
+<em class="property">class </em><code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">objectview</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/utils.html#objectview"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.objectview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.utils.peak_memory_mb">
+<code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">peak_memory_mb</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; float<a class="reference internal" href="../_modules/ceem/utils.html#peak_memory_mb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.peak_memory_mb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get peak memory usage for this process, as measured by
+max-resident-set size:
+<a class="reference external" href="https://unix.stackexchange.com/questions/30940/getrusage-system-call-what-is-maximum-resident-set-size">https://unix.stackexchange.com/questions/30940/getrusage-system-call-what-is-maximum-resident-set-size</a>
+Only works on OSX and Linux, returns 0.0 otherwise.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="ceem.utils.set_rng_seed">
+<code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">set_rng_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">rng_seed</span><span class="p">:</span> <span class="n">int</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="../_modules/ceem/utils.html#set_rng_seed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.set_rng_seed" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.utils.temp_disable_grad">
+<code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">temp_disable_grad</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/utils.html#temp_disable_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.temp_disable_grad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="ceem.utils.temp_require_grad">
+<code class="sig-prename descclassname">ceem.utils.</code><code class="sig-name descname">temp_require_grad</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwds</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ceem/utils.html#temp_require_grad"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ceem.utils.temp_require_grad" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-ceem">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ceem" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">CE-EM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, Stanford Intelligent Systems Laboratory (SISL).
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/source/ceem.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
