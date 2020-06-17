@@ -8,7 +8,9 @@ Ensure you are using at least Python 3.6
 pip install -e .
 ```
 
-Run `python -m pytest` to ensure everything works
+Run `python -m pytest` to ensure everything works.
+
+A Jupyter notebook demonstrating usage can be found in the `examples` subfolder.
 
 ## Code overview
 
