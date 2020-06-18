@@ -201,7 +201,7 @@ class ObsJacMixin:
            u (torch.tensor): (B, T, m) shaped control inputs
 
         Returns
-           jac_y_t (torch.tensor): (B, T, m, n) shaped jacobian of the observation
+           jac_y_t (torch.tensor): (B, T, ydim, n) shaped jacobian of the observation
         """
 
         p = self._ydim
@@ -216,6 +216,31 @@ class ObsJacMixin:
             dim=2)
 
         return jac_x
+
+    def jac_obs_u(self, t, x, u):
+        """Returns the Jacobian of observation wrt u
+
+        Args:
+           t (torch.tensor): (B, T,) shaped time indices
+           x (torch.tensor): (B, T, n) shaped system states
+           u (torch.tensor): (B, T, m) shaped control inputs
+
+        Returns
+           jac_y_t (torch.tensor): (B, T, ydim, m) shaped jacobian of the observation
+        """
+
+        p = self._ydim
+
+        u = u.detach()
+        u.requires_grad_(True)
+
+        y = self.observe(t, x, u)
+
+        jac_u = torch.stack(
+            [torch.autograd.grad(y[:, :, i].sum(), u, retain_graph=True)[0] for i in range(p)],
+            dim=2)
+
+        return jac_u
 
     def jac_obs_theta(self, t, x, u=None):
         """Returns the Jacobian of observation wrt theta
@@ -261,6 +286,30 @@ class DynJacMixin:
             dim=2)
 
         return jac_x
+
+    def jac_step_u(self, t, x, u):
+        """Returns the Jacobian of step at time t
+
+        Args:
+           t (torch.tensor): (B, T,) shaped time indices
+           x (torch.tensor): (B, T, n) shaped system states
+           u (torch.tensor): (B, T, m) shaped control inputs
+
+        Returns
+           jac_u (torch.tensor): (B, T, n, m) shaped jacobian of the next state
+        """
+        n = self.xdim
+
+        u = u.detach()
+        u.requires_grad_(True)
+
+        nx = self.step(t, x, u)
+
+        jac_u = torch.stack(
+            [torch.autograd.grad(nx[:, :, i].sum(), u, retain_graph=True)[0] for i in range(n)],
+            dim=2)
+
+        return jac_u
 
     def jac_step_theta(self, t, x, u=None):
         """Returns the Jacobian of step at time t
