@@ -287,7 +287,8 @@ class DynJacMixin:
                         if param.grad is not None:
                             if jacobians[name] is None:
                                 jacobians[name] = torch.zeros(B, T, N, *param.shape)
-                            jacobians[name][iB, iT, iN] = param.grad
+                            if param.grad is not None:
+                                jacobians[name][iB, iT, iN] = param.grad
         return jacobians
 
 
