@@ -329,15 +329,14 @@ class DynJacMixin:
 
         for iB in range(B):
             for iT in range(T):
-                for iN in range(1, N):
+                for iN in range(N):
                     self.zero_grad()
                     nx[iB, iT, iN].backward(retain_graph=True)
                     for name, param in self.named_parameters():
+                        if jacobians[name] is None:
+                            jacobians[name] = torch.zeros(B, T, N, *param.shape)
                         if param.grad is not None:
-                            if jacobians[name] is None:
-                                jacobians[name] = torch.zeros(B, T, N, *param.shape)
-                            if param.grad is not None:
-                                jacobians[name][iB, iT, iN] = param.grad
+                            jacobians[name][iB, iT, iN] = param.grad
         return jacobians
 
 
