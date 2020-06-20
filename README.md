@@ -1,5 +1,7 @@
 # CE-EM
 
+[![](https://img.shields.io/badge/docs-CE--EM-green)](https://sisl.github.io/CEEM/)
+
 ## Usage
 
 Ensure you are using at least Python 3.6
