@@ -39,11 +39,10 @@ class CEEM:
         self._termination_callback = termination_callback
         self._parallel = parallel
 
-    def smooth(self, xsm, sys, solver_kwargs=None, subsetinds=None):
+    def smooth(self, xsm, solver_kwargs=None, subsetinds=None):
         """
         Args:
           xsm (torch.tensor): (B,T,n) trajectories of states
-          sys (DiscreteDynamicalSystem):
 
         Returns:
           xsm (torch.tensor): (B,T,n) trajectories of smoothed states
@@ -61,12 +60,12 @@ class CEEM:
         if self._parallel > 0:
             results = joblib.Parallel(n_jobs=self._parallel, backend="loky")(
                 joblib.delayed(NLSsmoother)(x0=xsm[b:b + 1], criterion=self._smoothing_criteria[b],
-                                            system=sys, solver_kwargs=solver_kwargs)
+                                            solver_kwargs=solver_kwargs)
                 for b in tqdm(iterator))
             xsm_l, metrics_l = nested.zip(*results)
         else:
             for b in tqdm(iterator):
-                xsm_, metrics = NLSsmoother(xsm[b:b + 1], self._smoothing_criteria[b], sys,
+                xsm_, metrics = NLSsmoother(xsm[b:b + 1], self._smoothing_criteria[b],
                                             solver_kwargs=solver_kwargs)
                 xsm_l.append(xsm_)
                 metrics_l.append(metrics)
@@ -76,13 +75,12 @@ class CEEM:
 
         return xsm, metrics_l
 
-    def step(self, xs, sys, smooth_solver_kwargs=None, learner_criterion_kwargs=None,
+    def step(self, xs, smooth_solver_kwargs=None, learner_criterion_kwargs=None,
              learner_opt_kwargs=None, subset=None):
         """ Runs one step of CEEM algorithm
 
         Args:
           xs (torch.tensor):
-          sys (DiscreteDynamicalSystem):
           smooth_solver_kwargs (dict):
           learner_criterion_kwargs (dict):
           learner_opt_kwargs (dict):
@@ -94,7 +92,7 @@ class CEEM:
           learn_metrics (dict):
 
         First runs the smoothing step on trajectories `xs`.
-        Then runs the learning step on `sys`.
+        Then runs the learning step on `params`.
         """
 
         if subset is not None:
@@ -122,13 +120,13 @@ class CEEM:
         assert len(learner_opt_kwargs) == len(self._learning_criteria)
 
         logger.info('Executing smoothing step')
-        xs, smooth_metrics = self.smooth(xs, sys, smooth_solver_kwargs, subsetinds=subsetinds)
+        xs, smooth_metrics = self.smooth(xs, smooth_solver_kwargs, subsetinds=subsetinds)
 
         logger.info('Executing learning step')
         ncrit = len(self._learning_criteria)
 
         # Learn theta
-        learn_metrics = learner(sys, self._learning_criteria, [xs] * ncrit, self._learning_opts,
+        learn_metrics = learner(self._learning_criteria, [xs] * ncrit, self._learning_opts,
                                 self._learning_params, learner_criterion_kwargs,
                                 opt_kwargs_list=learner_opt_kwargs, subsetinds=subsetinds)
 
@@ -140,13 +138,12 @@ class CEEM:
 
         return xs, smooth_metrics, learn_metrics
 
-    def train(self, xs, sys, nepochs, smooth_solver_kwargs=None, learner_criterion_kwargs=None,
+    def train(self, xs, nepochs, smooth_solver_kwargs=None, learner_criterion_kwargs=None,
               learner_opt_kwargs=None, subset=None):
         """ Runs one step of CEEM algorithm
 
         Args:
           xs (torch.tensor):
-          sys (DiscreteDynamicalSystem):
           nepochs (int): Number of epochs to run CEEM algorithm for
           smooth_solver_kwargs (dict):
           learner_criterion_kwargs (dict):
@@ -154,7 +151,7 @@ class CEEM:
           subset (int):
         """
         for epoch in range(nepochs):
-            xs, smooth_metrics, learn_metrics = self.step(xs, sys, smooth_solver_kwargs,
+            xs, smooth_metrics, learn_metrics = self.step(xs, smooth_solver_kwargs,
                                                           learner_criterion_kwargs,
                                                           learner_opt_kwargs, subset=subset)
 

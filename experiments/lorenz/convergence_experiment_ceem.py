@@ -150,16 +150,16 @@ def train(seed, logdir, sys_seed, k, b):
 
     for b in range(B):
 
-        obscrit = GaussianObservationCriterion(1.0 * torch.ones(ydim), t[b:b + 1], y[b:b + 1])
+        obscrit = GaussianObservationCriterion(system, 1.0 * torch.ones(ydim), t[b:b + 1], y[b:b + 1])
 
-        dyncrit = GaussianDynamicsCriterion(1e0 * torch.ones(xdim), t[b:b + 1])
+        dyncrit = GaussianDynamicsCriterion(system, 1e0 * torch.ones(xdim), t[b:b + 1])
 
         smoothing_criteria.append(GroupSOSCriterion([obscrit, dyncrit]))
 
     smooth_solver_kwargs = {'verbose': 0, 'tr_rho': 0.01}
 
     # specify learning criteria
-    learning_criteria = [GaussianDynamicsCriterion(1e0*torch.ones(xdim), t)]
+    learning_criteria = [GaussianDynamicsCriterion(system, 1e0*torch.ones(xdim), t)]
     learning_params = [params]
     # learning_opts = ['scipy_minimize']
     # learner_opt_kwargs = {'method': 'Nelder-Mead', 'tr_rho': 0.1,
@@ -235,7 +235,7 @@ def train(seed, logdir, sys_seed, k, b):
     # x0 = torch.zeros_like(xs)
     x0 = xs + torch.randn_like(xs)
 
-    ceem.train(xs=x0, sys=system, nepochs=5000, smooth_solver_kwargs=smooth_solver_kwargs,
+    ceem.train(xs=x0, nepochs=5000, smooth_solver_kwargs=smooth_solver_kwargs,
                learner_opt_kwargs=learner_opt_kwargs)
 
     return

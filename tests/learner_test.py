@@ -36,7 +36,7 @@ def test_learner():
 
     t = torch.stack([torch.arange(T), torch.arange(T)]).to(torch.get_default_dtype())
 
-    dyncrit = GaussianDynamicsCriterion(torch.ones(3), t)
+    dyncrit = GaussianDynamicsCriterion(sys, torch.ones(3), t)
 
     params = list(sys.parameters())[:2]
     vparams = parameters_to_vector(params)
@@ -44,7 +44,7 @@ def test_learner():
     vparams += torch.randn_like(vparams) * 0.1
     vector_to_parameters(vparams, params)
 
-    opt_result = learner(sys, [dyncrit], [x], ['scipy_minimize'], [params], [{}], opt_kwargs_list=[{
+    opt_result = learner([dyncrit], [x], ['scipy_minimize'], [params], [{}], opt_kwargs_list=[{
         'method': 'Nelder-Mead'
     }])[0]
 

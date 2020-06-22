@@ -14,12 +14,11 @@ from ceem import utils
 from ceem.opt_criteria import GroupCriterion, STRParamCriterion
 
 
-def learner(model, criterion_list, criterion_x_list, opt_list, params_list, crit_kwargs_list,
+def learner(criterion_list, criterion_x_list, opt_list, params_list, crit_kwargs_list,
             opt_kwargs_list=None, subsetinds=None):
     """
     Generic learner function
     Args:
-        model (DiscreteDynamicalSystem)
         criterion_list: list of Criterion instances
         criterion_x_list: list of torch.tensor to pass to criteria
         opt_list: list of optimizers (see OPTIMIZERS)
@@ -48,14 +47,14 @@ def learner(model, criterion_list, criterion_x_list, opt_list, params_list, crit
         crit_kwargs['inds'] = subsetinds
         opt_kwargs = opt_kwargs_list[i]
 
-        opt_result = opt(criterion, model, criterion_x, params, crit_kwargs, opt_kwargs)
+        opt_result = opt(criterion, criterion_x, params, crit_kwargs, opt_kwargs)
 
         opt_result_list.append(opt_result)
 
     return opt_result_list
 
 
-def scipy_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwargs):
+def scipy_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
     """ Wrapper function to call scipy optimizers
     """
 
@@ -74,7 +73,7 @@ def scipy_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
         vector_to_parameters(vparams, params)
 
         with torch.no_grad():
-            loss = criterion(model, criterion_x, **crit_kwargs)
+            loss = criterion(criterion_x, **crit_kwargs)
 
         vector_to_parameters(vparams0, params)
 
@@ -84,7 +83,7 @@ def scipy_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
         vparams = torch.tensor(vparams).to(torch.get_default_dtype())
         vector_to_parameters(vparams, params)
 
-        loss = criterion(model, criterion_x, **crit_kwargs)
+        loss = criterion(criterion_x, **crit_kwargs)
 
         loss.backward()
 
@@ -144,7 +143,7 @@ def ensure_default_torch_kwargs(opt_kwargs):
     return opt_kwargs
 
 
-def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwargs):
+def torch_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
     """ Wrapper function to use torch.optim optimizers
     """
     opt_kwargs = deepcopy(opt_kwargs)
@@ -165,7 +164,7 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
 
     def closure():
         opt.zero_grad()
-        loss = criterion(model, criterion_x, **crit_kwargs)
+        loss = criterion(criterion_x, **crit_kwargs)
         loss.backward()
         return loss
 

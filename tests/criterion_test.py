@@ -17,18 +17,18 @@ def check_sys(sys, t, x, y, atol=1e-8, u=None):
     _, _, m = y.shape
 
     # GaussianObservationCriterion
-    obscrit = GaussianObservationCriterion(0.5 * torch.eye(m), t, y, u=u)
+    obscrit = GaussianObservationCriterion(sys, 0.5 * torch.eye(m), t, y, u=u)
 
-    obsjac = obscrit.jac_resid_x(sys, x)
+    obsjac = obscrit.jac_resid_x(x)
 
-    obsjac_slow = super(GaussianObservationCriterion, obscrit).jac_resid_x(sys, x)
+    obsjac_slow = super(GaussianObservationCriterion, obscrit).jac_resid_x(x)
 
     test = float((obsjac - obsjac_slow).norm())
     assert np.allclose(test, 0., atol=atol), 'ObsJac Torch Comparison: %.3e' % test
 
-    obsjac = obscrit.jac_resid_x(sys, x, sparse=True)
+    obsjac = obscrit.jac_resid_x(x, sparse=True)
 
-    obsjac_slow = super(GaussianObservationCriterion, obscrit).jac_resid_x(sys, x, sparse=True)
+    obsjac_slow = super(GaussianObservationCriterion, obscrit).jac_resid_x(x, sparse=True)
 
     test = norm(obsjac - obsjac_slow)
     assert np.allclose(test, 0., atol=atol), 'ObsJac Sparse Comparison: %.3e' % test
@@ -36,32 +36,32 @@ def check_sys(sys, t, x, y, atol=1e-8, u=None):
     # SoftTrustRegionCriterion
     trcrit = STRStateCriterion(rho=2., x0=x.clone())
 
-    trjac = trcrit.jac_resid_x(sys, x)
+    trjac = trcrit.jac_resid_x(x)
 
-    trjac_slow = super(STRStateCriterion, trcrit).jac_resid_x(sys, x)
+    trjac_slow = super(STRStateCriterion, trcrit).jac_resid_x(x)
     test = float((trjac - trjac_slow).norm())
     assert np.allclose(test, 0., atol=atol), 'trJac Torch Comparison: %.3e' % test
 
-    trjac = trcrit.jac_resid_x(sys, x, sparse=True)
+    trjac = trcrit.jac_resid_x(x, sparse=True)
 
-    trjac_slow = super(STRStateCriterion, trcrit).jac_resid_x(sys, x, sparse=True)
+    trjac_slow = super(STRStateCriterion, trcrit).jac_resid_x(x, sparse=True)
 
     test = norm(trjac - trjac_slow)
     assert np.allclose(test, 0., atol=atol), 'trJac Sparse Comparison: %.3e' % test
 
     # GaussianDynamicsCriterion
-    dyncrit = GaussianDynamicsCriterion(0.75 * torch.ones(n), t, u=u)
+    dyncrit = GaussianDynamicsCriterion(sys, 0.75 * torch.ones(n), t, u=u)
 
-    dynjac = dyncrit.jac_resid_x(sys, x)
+    dynjac = dyncrit.jac_resid_x(x)
 
-    dynjac_slow = super(GaussianDynamicsCriterion, dyncrit).jac_resid_x(sys, x)
+    dynjac_slow = super(GaussianDynamicsCriterion, dyncrit).jac_resid_x(x)
 
     test = float((dynjac - dynjac_slow).norm())
     assert np.allclose(test, 0., atol=atol), 'DynJac Torch Comparison: %.3e' % test
 
-    dynjac = dyncrit.jac_resid_x(sys, x, sparse=True)
+    dynjac = dyncrit.jac_resid_x(x, sparse=True)
 
-    dynjac_slow = super(GaussianDynamicsCriterion, dyncrit).jac_resid_x(sys, x, sparse=True)
+    dynjac_slow = super(GaussianDynamicsCriterion, dyncrit).jac_resid_x(x, sparse=True)
 
     test = norm(dynjac - dynjac_slow)
     assert np.allclose(test, 0., atol=atol), 'DynJac Sparse Comparison: %.3e' % test
@@ -69,16 +69,16 @@ def check_sys(sys, t, x, y, atol=1e-8, u=None):
     #GroupSOSCriterion
     groupcrit = GroupSOSCriterion([trcrit, obscrit, dyncrit])
 
-    groupjac = groupcrit.jac_resid_x(sys, x)
+    groupjac = groupcrit.jac_resid_x(x)
 
-    groupjac_slow = super(GroupSOSCriterion, groupcrit).jac_resid_x(sys, x)
+    groupjac_slow = super(GroupSOSCriterion, groupcrit).jac_resid_x(x)
 
     test = float((groupjac - groupjac_slow).norm())
     assert np.allclose(test, 0., atol=atol), 'GroupJac Torch Comparison: %.3e' % test
 
-    groupjac = groupcrit.jac_resid_x(sys, x, sparse=True)
+    groupjac = groupcrit.jac_resid_x(x, sparse=True)
 
-    groupjac_slow = super(GroupSOSCriterion, groupcrit).jac_resid_x(sys, x, sparse=True)
+    groupjac_slow = super(GroupSOSCriterion, groupcrit).jac_resid_x(x, sparse=True)
 
     test = norm(groupjac - groupjac_slow)
     assert np.allclose(test, 0., atol=atol), 'GroupJac Sparse Comparison: %.3e' % test
@@ -86,9 +86,9 @@ def check_sys(sys, t, x, y, atol=1e-8, u=None):
     # BlockSparseGroupSOSCriterion
     groupcrit = BlockSparseGroupSOSCriterion([trcrit, obscrit, dyncrit])
 
-    groupjac = groupcrit.jac_resid_x(sys, x, )
+    groupjac = groupcrit.jac_resid_x(x, )
 
-    groupjac_slow = super(BlockSparseGroupSOSCriterion, groupcrit).jac_resid_x(sys, x, sparse=True)
+    groupjac_slow = super(BlockSparseGroupSOSCriterion, groupcrit).jac_resid_x(x, sparse=True)
 
     test = norm(groupjac - groupjac_slow)
     assert np.allclose(test, 0., atol=atol), 'BlockSparseGroupJac Comparison: %.3e' % test

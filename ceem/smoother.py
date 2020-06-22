@@ -13,13 +13,12 @@ from ceem.opt_criteria import GroupSOSCriterion, STRStateCriterion
 from tqdm import tqdm
 
 
-def NLSsmoother(x0, criterion, system, solver_kwargs={'verbose': 2}):
+def NLSsmoother(x0, criterion, solver_kwargs={'verbose': 2}):
     """
     Smoothing with Gauss-Newton based approach
     Args:
         x0 (torch.tensor): (1,T,n) system states
         criterion (SOSCriterion): criterion to optimize
-        system (DiscreteDynamicalSystem)
         solver_kwargs : options for scipy.optimize.least_squares
     """
 
@@ -33,12 +32,12 @@ def NLSsmoother(x0, criterion, system, solver_kwargs={'verbose': 2}):
     def loss(x):
         with torch.no_grad():
             x = torch.tensor(x).view(1, T, xdim).to(x0.dtype)
-            loss = criterion.residuals(system, x)
+            loss = criterion.residuals(x)
         return loss.numpy()
 
     def jac(x):
         x = torch.tensor(x).view(1, T, xdim)
-        return criterion.jac_resid_x(system, x, sparse=True)
+        return criterion.jac_resid_x(x, sparse=True)
 
     with utils.Timer() as time:
         kwargs = dict(method='trf', loss='linear')

@@ -15,76 +15,78 @@ from ceem.dynamics import (AnalyticDynJacMixin, AnalyticObsJacMixin, DynJacMixin
 
 class Criterion:
 
-    def __call__(self, model, x, **kwargs):
-        return self.forward(model, x, **kwargs)
+    def __init__(self, model):
+        """
+        Args:
+            model (DiscreteDynamicalSystem)
+        """
+        self._model = model
+    
+    def __call__(self, x, **kwargs):
+        return self.forward(x, **kwargs)
 
-    def batched_forward(self, model, x, **kwargs):
+    def batched_forward(self, x, **kwargs):
         """
         Forward method for computing criterion, not summed over batch
         Args:
-            model (DiscreteDynamicalSystem)
             x (torch.tensor): (B,T,n) system states
         Returns:
             y (torch.tensor): (B,) criterion
         """
         B,T,n = x.shape
-        y = torch.stack([self(model,
+        y = torch.stack([self(
             x[i:i+1],**kwargs) for i in range(B)])
         return y
 
-    def batched_sample_forward(self, model, x, **kwargs):
+    def batched_sample_forward(self, x, **kwargs):
         """
         Forward method for computing criterion, not summed over batch
         Args:
-            model (DiscreteDynamicalSystem)
             x (torch.tensor): (B,N,T,n) system states
         Returns:
             y (torch.tensor): (B,N) criterion
         """
         B,N,T,n = x.shape
-        ys = [self.batched_forward(model, x[:,i], **kwargs) for i in range(N)]
+        ys = [self.batched_forward(x[:,i], **kwargs) for i in range(N)]
         return torch.stack(ys, dim=1)
 
 
-    def forward(self, model, x, **kwargs):
+    def forward(self, x, **kwargs):
         """
         Forward method for computing criterion
         Args:
-            model (DiscreteDynamicalSystem)
             x (torch.tensor): (B,T,n) system states
         Returns:
             criterion (torch.tensor): scalar criterion
         """
         raise NotImplementedError
 
-    def jac_x(self, model, x, **kwargs):
+    def jac_x(self, x, **kwargs):
         """
         Method for computing jacobian of criterion wrt x
         Args:
-            model (DiscreteDynamicalSystem)
             x (torch.tensor): (B,T,n) system states
         Returns:
             jac_x (torch.tensor): (B,T,n) criterion jacobian
         """
 
         x.requires_grad = True
-        criterion = self.forward(model, x, **kwargs)
+        criterion = self.forward(x, **kwargs)
 
         jac_x = grad(criterion, x)[0]
 
         return jac_x
 
-    def jac_theta(self, model, x, **kwargs):
+    def jac_theta(self, x, **kwargs):
         """
         Method for accumulating criterion jacobian on parameters
         Args:
-            model (DiscreteDynamicalSystem)
             x (torch.tensor): (B,T,n) system states
             return_grad (bool): if True, returns grad else accumulates to leaf nodes
         """
-        criterion = self.forward(model, x, **kwargs)
+        criterion = self.forward(x, **kwargs)
 
-        return grad(criterion, model.parameters(), allow_unused=True)
+        return grad(criterion, self._model.parameters(), allow_unused=True)
 
 
 class GroupCriterion(Criterion):
@@ -95,8 +97,8 @@ class GroupCriterion(Criterion):
     def __init__(self, criteria):
         self._criteria = criteria
 
-    def forward(self, model, x, **kwargs):
-        return sum([c(model, x, **kwargs) for c in self._criteria])
+    def forward(self, x, **kwargs):
+        return sum([c(x, **kwargs) for c in self._criteria])
 
 
 class STRParamCriterion(Criterion):
@@ -105,11 +107,12 @@ class STRParamCriterion(Criterion):
     """
 
     def __init__(self, rho, params):
+        super().__init__(None)
         self._rho = rho
         self._params = params
         self._vparams0 = parameters_to_vector(params).clone().detach()
 
-    def forward(self, model, x, **kwargs):
+    def forward(self, x, **kwargs):
         vparams = parameters_to_vector(self._params)
         return self._rho * torch.sum((vparams - self._vparams0)**2)
 
@@ -119,21 +122,23 @@ class SOSCriterion(Criterion):
     Sum-of-squares criterion
     """
 
-    def forward(self, model, x, **kwargs):
-        return 0.5 * (self.residuals(model, x, **kwargs)**2).sum()
+    def __init__(self, model):
+        super().__init__(model)
 
-    def residuals(self, model, x, **kwargs):
+    def forward(self, x, **kwargs):
+        return 0.5 * (self.residuals(x, **kwargs)**2).sum()
+
+    def residuals(self, x, **kwargs):
         """
         Forward method for computing SOS residuals
         Args:
-            model (DiscreteDynamicalSystem)
             x (torch.tensor): (B,T,n) system states
         Returns:
             residuals (torch.tensor): (nresid,) residuals
         """
         raise NotImplementedError
 
-    def scaled_jac_x_diag(self, model, x, sparse=False):
+    def scaled_jac_x_diag(self, x, sparse=False):
         """
         Returns the diagonal blocs of the Jacobian
         Args:
@@ -141,12 +146,12 @@ class SOSCriterion(Criterion):
         Returns
             jac_resid_x (lambda): lambda function of (b,t) that returns 2 torch.tensors of dimension (n,n)
         """
+        raise NotImplementedError
 
-    def jac_resid_x(self, model, x, sparse=False, sparse_format=sp.csr_matrix, **kwargs):
+    def jac_resid_x(self, x, sparse=False, sparse_format=sp.csr_matrix, **kwargs):
         """
         Method for computing residuals jacobian wrt x
         Args:
-            model (DiscreteDynamicalSystem)
             x (torch.tensor): (B,T,n) system states
             sparse (bool): if True returns a (nresid,B*T*n) sparse_format
             sparse_format (scipy.sparse): sparse matrix format
@@ -158,7 +163,7 @@ class SOSCriterion(Criterion):
         x = x.detach()
         x.requires_grad_(True)
 
-        resid = self.residuals(model, x, **kwargs)
+        resid = self.residuals(x, **kwargs)
 
         jac_resid_x = []
 
@@ -178,7 +183,9 @@ class SOSCriterion(Criterion):
 
 class GaussianObservationCriterion(SOSCriterion):
 
-    def __init__(self, Sig_y_inv, t, y, u=None):
+    def __init__(self, model, Sig_y_inv, t, y, u=None):
+
+        super().__init__(model)
 
         self._t = t
 
@@ -213,11 +220,11 @@ class GaussianObservationCriterion(SOSCriterion):
             u = self._u
         return t, x, y, u
 
-    def residuals(self, model, x, inds=None, flatten=True):
+    def residuals(self, x, inds=None, flatten=True):
 
         t, x, y, u = self.apply_inds(x, inds)
 
-        ypred = model.observe(t, x, u)
+        ypred = self._model.observe(t, x, u)
 
         err = ypred - y
 
@@ -228,9 +235,9 @@ class GaussianObservationCriterion(SOSCriterion):
 
         return resid.view(-1) if flatten else resid
 
-    def scaled_jac_x_diag(self, model, x, inds=None):
+    def scaled_jac_x_diag(self, x, inds=None):
         t, x, y, u = self.apply_inds(x, inds)
-        jac_obs_x = model.jac_obs_x(t, x, u)
+        jac_obs_x = self._model.jac_obs_x(t, x, u)
 
         if self._diagcov:
             jac_resid_x_ = self._Sig_y_inv_chol.unsqueeze(-1) * jac_obs_x
@@ -240,10 +247,10 @@ class GaussianObservationCriterion(SOSCriterion):
         J = jac_resid_x_.detach()
         return J
 
-    def jac_resid_x(self, model, x, sparse=False, sparse_format=sp.csr_matrix, inds=None):
+    def jac_resid_x(self, x, sparse=False, sparse_format=sp.csr_matrix, inds=None):
         t, x, y, u = self.apply_inds(x, inds)
-        if isinstance(model, ObsJacMixin):
-            jac_resid_x_ = self.scaled_jac_x_diag(model, x)
+        if isinstance(self._model, ObsJacMixin):
+            jac_resid_x_ = self.scaled_jac_x_diag(x)
             B, T, m, n = jac_resid_x_.shape
             # currently (B,T,m,n)
 
@@ -272,21 +279,21 @@ class STRStateCriterion(SOSCriterion):
     """
 
     def __init__(self, rho, x0):
-
+        super().__init__(None)
         self._size = x0.shape[-1]
         self._rho = rho
         self._x0 = x0
 
-    def residuals(self, model, x, inds=None, flatten=True):
+    def residuals(self, x, inds=None, flatten=True):
         res = self._rho * (x - self._x0)
         return res.view(-1) if flatten else res
 
-    def scaled_jac_x_diag(self, model, x, inds=None):
+    def scaled_jac_x_diag(self, x, inds=None):
         B, T, n = x.shape
         jac_resid = (self._rho * torch.eye(n).unsqueeze(0).unsqueeze(0)).repeat(B, T, 1, 1)
         return jac_resid.detach()
 
-    def jac_resid_x(self, model, x, sparse=False, sparse_format=sp.csr_matrix):
+    def jac_resid_x(self, x, sparse=False, sparse_format=sp.csr_matrix):
         B, T, n = x.shape
         if sparse:
             return self._rho * sp.eye(B * T * n, format=sparse_format.format, dtype=np.float64)
@@ -298,8 +305,8 @@ class GaussianX0Criterion(SOSCriterion):
     Soft Trust Region on states 
     """
 
-    def __init__(self, x0, Sig_x0_inv):
-
+    def __init__(self, model, x0, Sig_x0_inv):
+        super().__init__(model)
         self._size = x0.shape[-1]
         self._x0 = x0
         if Sig_x0_inv.ndim == 1:
@@ -310,7 +317,7 @@ class GaussianX0Criterion(SOSCriterion):
             self._Sig_x0_inv_chol = Sig_x0_inv.cholesky().unsqueeze(0).unsqueeze(0)
             self._diagcov = False
 
-    def residuals(self, model, x, inds=None, flatten=True):
+    def residuals(self, x, inds=None, flatten=True):
         err = (x[:,0] - self._x0)
 
         if self._diagcov:
@@ -320,7 +327,7 @@ class GaussianX0Criterion(SOSCriterion):
 
         return resid.view(-1) if flatten else resid
 
-    def jac_resid_x(self, model, x, sparse=False, sparse_format=sp.csr_matrix):
+    def jac_resid_x(self, x, sparse=False, sparse_format=sp.csr_matrix):
         B, T, n = x.shape
 
         if self._diagcov:
@@ -342,8 +349,8 @@ class GaussianX0Criterion(SOSCriterion):
 
 class GaussianDynamicsCriterion(SOSCriterion):
 
-    def __init__(self, Sig_w_inv, t, u=None):
-
+    def __init__(self, model, Sig_w_inv, t, u=None):
+        super().__init__(model)
         self._t = t
         self._u = u
         self._size = Sig_w_inv.shape[0]
@@ -366,11 +373,11 @@ class GaussianDynamicsCriterion(SOSCriterion):
             u = self._u
         return t, x, u
 
-    def residuals(self, model, x, inds=None, flatten=True):
+    def residuals(self, x, inds=None, flatten=True):
         t, x, u = self.apply_inds(x, inds)
 
         u = u[:, :-1] if u is not None else None
-        xpred = model.step(self._t[:, :-1], x[:, :-1], u)
+        xpred = self._model.step(self._t[:, :-1], x[:, :-1], u)
 
         err = xpred - x[:, 1:]
 
@@ -381,11 +388,11 @@ class GaussianDynamicsCriterion(SOSCriterion):
 
         return resid.view(-1) if flatten else resid
 
-    def scaled_jac_x_diag(self, model, x, inds=None):
+    def scaled_jac_x_diag(self, x, inds=None):
         t, x, u = self.apply_inds(x, inds)
 
         u = u[:, :-1] if u is not None else None
-        jac_dyn_x_ = model.jac_step_x(t[:, :-1], x[:, :-1], u)
+        jac_dyn_x_ = self._model.jac_step_x(t[:, :-1], x[:, :-1], u)
 
         if self._diagcov:
             jac_resid_x_ = self._Sig_w_inv_chol.unsqueeze(-1) * jac_dyn_x_
@@ -398,15 +405,15 @@ class GaussianDynamicsCriterion(SOSCriterion):
 
         return J, neyew
 
-    def jac_resid_x(self, model, x, sparse=False, sparse_format=sp.csr_matrix, inds=None):
+    def jac_resid_x(self, x, sparse=False, sparse_format=sp.csr_matrix, inds=None):
         t, x, u = self.apply_inds(x, inds)
 
-        if isinstance(model, DynJacMixin):
+        if isinstance(self._model, DynJacMixin):
             B, T, n = x.shape
             u = u[:, :-1] if u is not None else None
-            jac_dyn_x_ = model.jac_step_x(t[:, :-1], x[:, :-1], u)
+            jac_dyn_x_ = self._model.jac_step_x(t[:, :-1], x[:, :-1], u)
 
-            jac_resid_x_, neyew = self.scaled_jac_x_diag(model, x)
+            jac_resid_x_, neyew = self.scaled_jac_x_diag(x)
 
             # currently (B,T-1,n,n)
 
@@ -438,7 +445,7 @@ class GaussianDynamicsCriterion(SOSCriterion):
                 return jac_resid_x
 
         else:
-            return super().jac_resid_x(model, t, x)
+            return super().jac_resid_x(t, x)
 
 
 class BasicGroupSOSCriterion(SOSCriterion):
@@ -455,15 +462,15 @@ class GroupSOSCriterion(BasicGroupSOSCriterion):
 
         self._criteria = criteria
 
-    def residuals(self, model, x, **kwargs):
-        residuals_list = [c.residuals(model, x, **kwargs) for c in self._criteria]
+    def residuals(self, x, **kwargs):
+        residuals_list = [c.residuals(x, **kwargs) for c in self._criteria]
 
         return torch.cat(residuals_list, dim=0)
 
-    def jac_resid_x(self, model, x, sparse=False, sparse_format=sp.csr_matrix, **kwargs):
+    def jac_resid_x(self, x, sparse=False, sparse_format=sp.csr_matrix, **kwargs):
 
         jacs = [
-            c.jac_resid_x(model, x, sparse=sparse, sparse_format=sp.csr_matrix, **kwargs)
+            c.jac_resid_x(x, sparse=sparse, sparse_format=sp.csr_matrix, **kwargs)
             for c in self._criteria
         ]
 
@@ -491,7 +498,7 @@ class BlockSparseGroupSOSCriterion(BasicGroupSOSCriterion):
         self._size = sum([c._size for c in criteria])
         self._mem = {}
 
-    def residuals(self, model, x, **kwargs):
+    def residuals(self, x, **kwargs):
         B, T, n = x.shape
         residuals = torch.zeros(B, T, self._size)
 
@@ -499,15 +506,16 @@ class BlockSparseGroupSOSCriterion(BasicGroupSOSCriterion):
         s = 0
 
         for c in self._criteria[:-1]:
-            residuals[:, :, s:s + c._size] = c.residuals(model, x, **kwargs, flatten=False)
+            residuals[:, :, s:s + c._size] = c.residuals(x, **kwargs, flatten=False)
             s += c._size
 
         # Assign dynamics residuals (length T-1)
-        residuals[:, :-1, -n:] = self._criteria[-1].residuals(model, x, **kwargs, flatten=False)
+        residuals[:, :-1, -n:] = self._criteria[-1].residuals( 
+            x, **kwargs, flatten=False)
 
         return residuals.view(-1)
 
-    def jac_resid_x(self, model, x, sparse_format=sp.bsr_matrix, **kwargs):
+    def jac_resid_x(self, x, sparse_format=sp.bsr_matrix, **kwargs):
         B, T, n = x.shape
 
         # Check for memoized sparsity pattern
@@ -532,9 +540,9 @@ class BlockSparseGroupSOSCriterion(BasicGroupSOSCriterion):
         # Obtain building blocks from subcriteria
         J = []
         for i in range(len(self._criteria) - 1):
-            J.append(self._criteria[i].scaled_jac_x_diag(model, x))
+            J.append(self._criteria[i].scaled_jac_x_diag(x))
         m = self._size
-        Jd, E = self._criteria[-1].scaled_jac_x_diag(model, x)
+        Jd, E = self._criteria[-1].scaled_jac_x_diag(x)
         Jd = F.pad(Jd, pad=(0, 0, 0, 0, 0, 1), mode='constant', value=0)
 
         # Build main diagonal

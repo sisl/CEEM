@@ -38,14 +38,14 @@ def test_smoother():
     
     x0 = torch.zeros_like(x)
 
-    obscrit = GaussianObservationCriterion(torch.ones(2), t, y)
+    obscrit = GaussianObservationCriterion(sys, torch.ones(2), t, y)
 
-    dyncrit = GaussianDynamicsCriterion(torch.ones(3), t)
+    dyncrit = GaussianDynamicsCriterion(sys, torch.ones(3), t)
 
     # Test GroupSOSCriterion
     crit = GroupSOSCriterion([obscrit, dyncrit])
 
-    xsm, metrics = NLSsmoother(x0, crit, sys, solver_kwargs={'verbose': 2, 'tr_rho': 0.})
+    xsm, metrics = NLSsmoother(x0, crit, solver_kwargs={'verbose': 2, 'tr_rho': 0.})
 
     err = float((xsm - x).norm())
     assert err < 1e-8, 'Smoothing Error: %.3e' % err
@@ -55,7 +55,7 @@ def test_smoother():
     # Test BlockSparseGroupSOSCriterion
     crit = BlockSparseGroupSOSCriterion([obscrit, dyncrit])
 
-    xsm, metrics = NLSsmoother(torch.zeros_like(x), crit, sys)
+    xsm, metrics = NLSsmoother(torch.zeros_like(x), crit)
 
     err = float((xsm - x).norm())
     assert err < 1e-8, 'Smoothing Error: %.3e' % err

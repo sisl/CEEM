@@ -82,10 +82,10 @@ def main(logdir, datafile, valdatafile, subset, obsmodel, practice, wfac, xdim, 
 
     for b in range(B):
 
-        obscrit = GaussianObservationCriterion(vfac * torch.ones(ydim), t[b:b + 1], y[b:b + 1],
+        obscrit = GaussianObservationCriterion(sys, vfac * torch.ones(ydim), t[b:b + 1], y[b:b + 1],
                                                u=u[b:b + 1])
 
-        dyncrit = GaussianDynamicsCriterion(wfac * torch.ones(xdim), t[b:b + 1], u=u[b:b + 1])
+        dyncrit = GaussianDynamicsCriterion(sys, wfac * torch.ones(xdim), t[b:b + 1], u=u[b:b + 1])
 
         smoothing_criteria.append(GroupSOSCriterion([obscrit, dyncrit]))
 
@@ -93,8 +93,8 @@ def main(logdir, datafile, valdatafile, subset, obsmodel, practice, wfac, xdim, 
 
     # specify learning criteria
     learning_criteria = [
-        GaussianObservationCriterion(torch.ones(ydim), t, y, u=u),
-        GaussianDynamicsCriterion(torch.ones(xdim), t, u=u)
+        GaussianObservationCriterion(sys, torch.ones(ydim), t, y, u=u),
+        GaussianDynamicsCriterion(sys, torch.ones(xdim), t, u=u)
     ]
     learning_params = [list(sys._obs.parameters()), list(sys._dyn.parameters())]
 
@@ -157,7 +157,7 @@ def main(logdir, datafile, valdatafile, subset, obsmodel, practice, wfac, xdim, 
 
     x0 = 0.01 * torch.randn(B, T, xdim)
 
-    ceem.train(xs=x0, sys=sys, nepochs=5000, smooth_solver_kwargs=smooth_solver_kwargs,
+    ceem.train(xs=x0, nepochs=5000, smooth_solver_kwargs=smooth_solver_kwargs,
                learner_opt_kwargs=learner_opt_kwargs, subset=subset)
 
 

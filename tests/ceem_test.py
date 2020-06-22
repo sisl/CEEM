@@ -58,16 +58,16 @@ def test_ceem():
 
     for b in range(B):
 
-        obscrit = GaussianObservationCriterion(torch.ones(2), t[b:b + 1], y[b:b + 1])
+        obscrit = GaussianObservationCriterion(sys, torch.ones(2), t[b:b + 1], y[b:b + 1])
 
-        dyncrit = GaussianDynamicsCriterion(torch.ones(3), t[b:b + 1])
+        dyncrit = GaussianDynamicsCriterion(sys, torch.ones(3), t[b:b + 1])
 
         smoothing_criteria.append(GroupSOSCriterion([obscrit, dyncrit]))
 
     smooth_solver_kwargs = {'verbose':0, 'tr_rho': 0.001}
 
     # specify learning criteria
-    learning_criteria = [GaussianDynamicsCriterion(torch.ones(3), t)]
+    learning_criteria = [GaussianDynamicsCriterion(sys, torch.ones(3), t)]
     learning_params = [params]
     learning_opts = ['scipy_minimize']
     learner_opt_kwargs = {'method': 'Nelder-Mead',
@@ -104,7 +104,7 @@ def test_ceem():
 
     x0 = torch.zeros_like(xtr)
 
-    ceem.train(xs=x0, sys=sys, nepochs=150, 
+    ceem.train(xs=x0, nepochs=150, 
         smooth_solver_kwargs = smooth_solver_kwargs,
         learner_opt_kwargs=learner_opt_kwargs, subset=1)
 
