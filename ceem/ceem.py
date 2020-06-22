@@ -56,16 +56,19 @@ class CEEM:
         metrics_l = []
         iterator = list(range(B)) if subsetinds is None else subsetinds
 
+        islist = isinstance(xsm, list)
+
         # Run smoothers
         if self._parallel > 0:
             results = joblib.Parallel(n_jobs=self._parallel, backend="loky")(
-                joblib.delayed(NLSsmoother)(x0=xsm[b:b + 1], criterion=self._smoothing_criteria[b],
+                joblib.delayed(NLSsmoother)(x0=xsm[b] if islist else xsm[b:b + 1], 
+                                            criterion=self._smoothing_criteria[b],
                                             solver_kwargs=solver_kwargs)
                 for b in tqdm(iterator))
             xsm_l, metrics_l = nested.zip(*results)
         else:
             for b in tqdm(iterator):
-                xsm_, metrics = NLSsmoother(xsm[b:b + 1], self._smoothing_criteria[b],
+                xsm_, metrics = NLSsmoother(xsm[b] if islist else xsm[b:b + 1], self._smoothing_criteria[b],
                                             solver_kwargs=solver_kwargs)
                 xsm_l.append(xsm_)
                 metrics_l.append(metrics)
@@ -96,7 +99,10 @@ class CEEM:
         """
 
         if subset is not None:
-            B = xs.shape[0]
+            if isinstance(xs, list):
+              B = len(xs)
+            else:
+              B = xs.shape[0]
             subB = min(subset, B)
             subsetinds = np.random.choice(B, subB, replace=False)
         else:

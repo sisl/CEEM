@@ -36,6 +36,7 @@ def learner(criterion_list, criterion_x_list, opt_list, params_list, crit_kwargs
     # set all requires_grad to false
     for x, c in zip(criterion_x_list, criterion_list):
         if isinstance(x, list):
+            assert subsetinds is None, 'subsetinds not supported for listed x.'
             for x_ in x:
                 x_.requires_grad_(False)
             if isinstance(c, list):
@@ -69,12 +70,14 @@ def scipy_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
     if 'tr_rho' in opt_kwargs:
         tr_rho = opt_kwargs.pop('tr_rho')
         if isinstance(criterion, list):
-            for i, c in enumerate(criterion):
-                criterion[i] = GroupCriterion([c, STRParamCriterion(tr_rho, params)])
+            criteria = criterion 
+            criterion = []
+            for c in criteria:
+                criterion.append(GroupCriterion([c, STRParamCriterion(tr_rho, params)]))
         else:
             criterion = GroupCriterion([criterion, STRParamCriterion(tr_rho, params)])
 
-    B, T, n = criterion_x.shape
+    # B, T, n = criterion_x.shape
 
     vparams0 = parameters_to_vector(params).clone().detach()
 
