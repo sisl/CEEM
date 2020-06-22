@@ -34,8 +34,14 @@ def learner(criterion_list, criterion_x_list, opt_list, params_list, crit_kwargs
         opt_kwargs_list = [DEFAULT_OPTIMIZER_KWARGS[opt] for opt in opt_list]
 
     # set all requires_grad to false
-    for x in criterion_x_list:
-        x.requires_grad_(False)
+    for x, c in zip(criterion_x_list, criterion_list):
+        if isinstance(x, list):
+            for x_ in x:
+                x_.requires_grad_(False)
+            if isinstance(c, list):
+                assert len(x) == len(c), 'Mismatch between len(criteria), len(xs).'
+        else:
+            x.requires_grad_(False)
 
     opt_result_list = []
     for i in range(len(criterion_list)):
@@ -62,7 +68,11 @@ def scipy_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
 
     if 'tr_rho' in opt_kwargs:
         tr_rho = opt_kwargs.pop('tr_rho')
-        criterion = GroupCriterion([criterion, STRParamCriterion(tr_rho, params)])
+        if isinstance(criterion, list):
+            for i, c in enumerate(criterion):
+                criterion[i] = GroupCriterion([c, STRParamCriterion(tr_rho, params)])
+        else:
+            criterion = GroupCriterion([criterion, STRParamCriterion(tr_rho, params)])
 
     B, T, n = criterion_x.shape
 
@@ -73,7 +83,16 @@ def scipy_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
         vector_to_parameters(vparams, params)
 
         with torch.no_grad():
-            loss = criterion(criterion_x, **crit_kwargs)
+            if isinstance(criterion_x, list):
+                loss = 0.
+                if isinstance(criterion, list):
+                    for (x_,c_) in zip(criterion_x, criterion):
+                        loss = loss + c_(x_,**crit_kwargs)
+                else:
+                    for x_ in criterion_x:
+                        loss = loss + criterion(x_, **crit_kwargs)
+            else:
+                loss = criterion(criterion_x, **crit_kwargs)
 
         vector_to_parameters(vparams0, params)
 
@@ -83,7 +102,16 @@ def scipy_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
         vparams = torch.tensor(vparams).to(torch.get_default_dtype())
         vector_to_parameters(vparams, params)
 
-        loss = criterion(criterion_x, **crit_kwargs)
+        if isinstance(criterion_x, list):
+            loss = 0.
+            if isinstance(criterion, list):
+                for (x_,c_) in zip(criterion_x, criterion):
+                    loss = loss + c_(x_,**crit_kwargs)
+            else:
+                for x_ in criterion_x:
+                    loss = loss + criterion(x_, **crit_kwargs)
+        else:
+            loss = criterion(criterion_x, **crit_kwargs)
 
         loss.backward()
 
@@ -152,7 +180,11 @@ def torch_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
 
     if 'tr_rho' in opt_kwargs:
         tr_rho = opt_kwargs.pop('tr_rho')
-        criterion = GroupCriterion([criterion, STRParamCriterion(tr_rho, params)])
+        if isinstance(criterion, list):
+            for i, c in enumerate(criterion):
+                criterion[i] = GroupCriterion([c, STRParamCriterion(tr_rho, params)])
+        else:
+            criterion = GroupCriterion([criterion, STRParamCriterion(tr_rho, params)])
 
     method = opt_kwargs.pop('method')
 
@@ -164,7 +196,17 @@ def torch_minimize(criterion, criterion_x, params, crit_kwargs, opt_kwargs):
 
     def closure():
         opt.zero_grad()
-        loss = criterion(criterion_x, **crit_kwargs)
+        if isinstance(criterion_x, list):
+            loss = 0.
+            if isinstance(criterion, list):
+                for (x_,c_) in zip(criterion_x, criterion):
+                    loss = loss + c_(x_,**crit_kwargs)
+            else:
+                for x_ in criterion_x:
+                    loss = loss + criterion(x_, **crit_kwargs)
+        else:
+            loss = criterion(criterion_x, **crit_kwargs)
+
         loss.backward()
         return loss
 

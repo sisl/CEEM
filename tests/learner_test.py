@@ -55,6 +55,22 @@ def test_learner():
 
     assert np.allclose(error, 0., atol=1e-4), 'Error=%.3e' % error
 
+
+    vparams += torch.randn_like(vparams) * 0.1
+    vector_to_parameters(vparams, params)
+
+    opt_result = learner([dyncrit], [x], ['torch_minimize'], [params], [{}], opt_kwargs_list=[{
+        'method': 'Adam',
+        'lr': 1e-3
+    }])[0]
+
+    params = list(sys.parameters())[:2]
+    vparams = parameters_to_vector(params)
+
+    error = (vparams - true_vparams).norm().item()
+
+    assert np.allclose(error, 0., atol=1e-3), 'Error=%.3e' % error
+
     print('Passed.')
 
 
