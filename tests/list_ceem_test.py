@@ -109,7 +109,7 @@ def test_ceem():
 
     ceem.train(xs=x0, nepochs=150, 
         smooth_solver_kwargs = smooth_solver_kwargs,
-        learner_opt_kwargs=learner_opt_kwargs)
+        learner_opt_kwargs=learner_opt_kwargs, subset=1)
 
     assert tcb(0)
     if tcb(0):

@@ -33,10 +33,30 @@ def learner(criterion_list, criterion_x_list, opt_list, params_list, crit_kwargs
     if opt_kwargs_list is None:
         opt_kwargs_list = [DEFAULT_OPTIMIZER_KWARGS[opt] for opt in opt_list]
 
+    if isinstance(criterion_x_list[0], list) and subsetinds is not None:
+        # using list instead of batched x - need to adjust with
+        # subsetinds
+        criterion_list_ = []
+        criterion_x_list_ = []
+        for i in range(len(criterion_list)):
+            x = criterion_x_list[i]
+            x = [x[b] for b in subsetinds]
+            criterion_x_list_.append(x)
+            c = criterion_list[i]
+            if isinstance(c,list):
+                c = [c[b] for b in subsetinds]
+                criterion_list_.append(c)
+
+        subsetinds = None
+        criterion_x_list = criterion_x_list_
+        criterion_list = criterion_list_
+
+
+
     # set all requires_grad to false
     for x, c in zip(criterion_x_list, criterion_list):
         if isinstance(x, list):
-            assert subsetinds is None, 'subsetinds not supported for listed x.'
+            
             for x_ in x:
                 x_.requires_grad_(False)
             if isinstance(c, list):
