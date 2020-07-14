@@ -565,6 +565,73 @@ def HarmonicDecayScheduler(k, a=50.0):
     a = float(a)
     return a/(k+a) 
 
+
+def torchoptimizer(objfun, params, lr=1e-2, nepochs=10):
+
+    opt = torch.optim.Adam(params, lr=lr)
+
+    for epoch in range(nepochs):
+        opt.zero_grad()
+
+        loss = objfun()
+
+        loss.backward()
+
+        opt.step()
+
+    return
+
+
+def scipyoptimizer(objfun, params, method='BFGS'):
+
+    vparams0 = parameters_to_vector(params).clone()
+
+    def eval_f(vparams):
+        vparams = torch.tensor(vparams)
+
+        vparams_ = parameters_to_vector(params)
+        vector_to_parameters(vparams, params)
+
+        with torch.no_grad():
+            obj = objfun()
+
+        vector_to_parameters(vparams_, params)
+
+        return obj.detach().numpy()
+
+    def eval_g(vparams):
+        vparams = torch.tensor(vparams)
+
+        vparams_ = parameters_to_vector(params)
+        vector_to_parameters(vparams, params)
+
+        obj = objfun()
+
+        obj.backward()
+
+        grads = torch.cat([
+            p.grad.view(-1) if p.grad is not None else torch.zeros_like(p).view(-1) for p in params
+        ])
+
+        grads = grads.detach().numpy()
+
+        vector_to_parameters(vparams0, params)
+
+        return grads
+
+
+    with utils.Timer() as time:
+        if method == 'BFGS':
+            opt_result_ = minimize(eval_f, vparams0.detach().numpy(), 
+                jac=eval_g, method='BFGS', options={'disp':True})
+        elif method == 'Nelder-Mead':
+            opt_result_ = minimize(eval_f, vparams0.detach().numpy(), 
+                method='Nelder-Mead', options={'disp':True})
+
+    vparams = opt_result_['x']
+
+    return torch.tensor(vparams)
+
 class SAEMTrainer:
 
     def __init__(self, fapf, y, 
@@ -647,70 +714,5 @@ class SAEMTrainer:
             Qk = Q * (1-gam) + gam * Q_
             return self.recursive_Q(xs[1:], y, k_+1, Qk) 
 
-def torchoptimizer(objfun, params, lr=1e-2, nepochs=10):
 
-    opt = torch.optim.Adam(params, lr=lr)
-
-    for epoch in range(nepochs):
-        opt.zero_grad()
-
-        loss = objfun()
-
-        loss.backward()
-
-        opt.step()
-
-    return
-
-
-
-def scipyoptimizer(objfun, params, method='BFGS'):
-
-    vparams0 = parameters_to_vector(params).clone()
-
-    def eval_f(vparams):
-        vparams = torch.tensor(vparams)
-
-        vparams_ = parameters_to_vector(params)
-        vector_to_parameters(vparams, params)
-
-        with torch.no_grad():
-            obj = objfun()
-
-        vector_to_parameters(vparams_, params)
-
-        return obj.detach().numpy()
-
-    def eval_g(vparams):
-        vparams = torch.tensor(vparams)
-
-        vparams_ = parameters_to_vector(params)
-        vector_to_parameters(vparams, params)
-
-        obj = objfun()
-
-        obj.backward()
-
-        grads = torch.cat([
-            p.grad.view(-1) if p.grad is not None else torch.zeros_like(p).view(-1) for p in params
-        ])
-
-        grads = grads.detach().numpy()
-
-        vector_to_parameters(vparams0, params)
-
-        return grads
-
-
-    with utils.Timer() as time:
-        if method == 'BFGS':
-            opt_result_ = minimize(eval_f, vparams0.detach().numpy(), 
-                jac=eval_g, method='BFGS', options={'disp':True})
-        elif method == 'Nelder-Mead':
-            opt_result_ = minimize(eval_f, vparams0.detach().numpy(), 
-                method='Nelder-Mead', options={'disp':True})
-
-    vparams = opt_result_['x']
-
-    return torch.tensor(vparams)
 
