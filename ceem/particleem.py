@@ -101,7 +101,8 @@ class faPF:
         x0mean=None, resampler=Resampler('systematic'), 
         FFBSi_N = None,
         burnin_T = None,
-        ess_frac = 0.5):
+        ess_frac = 0.5,
+        transform = lambda x: x):
         """
         Fully-Adapted Particle Filter
         Args:
@@ -115,6 +116,7 @@ class faPF:
           FFBSi_N (int): number of backward trajectories to sample
           burnin_T (int or None): time skipped when computing MCEM Q
           ess_frac (float): Effective Sample Size fraction
+          transform (function): function for projecting states onto a manifold
         """
 
         self._N = N
@@ -134,6 +136,7 @@ class faPF:
         self._FFBSi_N = FFBSi_N if FFBSi_N else max(N//10,1)
         self._burnin_T = burnin_T
         self._ess_frac = ess_frac
+        self._transform = transform
 
     def filter(self, y):
         '''
@@ -153,6 +156,7 @@ class faPF:
 
         # sample initial distribution from p(x0 | y0)
         x[:,:,0:1] = self.sample_initial(y[:,0:1], N)
+        x[:,:,0:1] = self._transform(x[:,:,0:1])
         v_unnorm = torch.zeros(B,N,T-1)
 
         log_prev_v = torch.ones(B,N, dtype=torch.get_default_dtype())
@@ -191,6 +195,7 @@ class faPF:
             sampdist = self.get_sampling_distribution(t-1, xtm1r, yt)
 
             xt = sampdist.sample().reshape(B,N,1,self._xdim)
+            xt = self._transform(xt)
 
             x[:,:,t:t+1] = xt
 

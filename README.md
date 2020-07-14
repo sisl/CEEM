@@ -1,5 +1,9 @@
 # CE-EM
 
+[![](https://img.shields.io/badge/docs-CE--EM-green)](https://sisl.github.io/CEEM/)
+
+Official implementation of the the algorithm CE-EM and baseline Particle EM from "[Scalable Identification of Partially Observed Systems with Certainty-Equivalent EM](https://arxiv.org/abs/2006.11615)".
+
 ## Usage
 
 Ensure you are using at least Python 3.6
