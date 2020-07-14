@@ -569,6 +569,7 @@ class SAEMTrainer:
 
     def __init__(self, fapf, y, 
             gamma_sched=HarmonicDecayScheduler,
+            optimizer=torchoptimizer,
             max_k=100,
             xlen_cutoff=None):
         '''
@@ -580,6 +581,7 @@ class SAEMTrainer:
             https://projecteuclid.org/download/pdf_1/euclid.aos/1018031103 
         '''
         self._fapf = fapf
+        self._optimizer=optimizer
         self._y = y
         self._gamma_sched = gamma_sched
         self._max_k = max_k
@@ -611,7 +613,7 @@ class SAEMTrainer:
             with utils.Timer() as time:
                 obj = lambda: -self.recursive_Q(xsms, self._y, 0, 0.)
 
-                torchoptimizer(obj, params)
+                self._optimizer(obj, params)
 
             logger.logkv('train/Mtime', time.dt)
 
