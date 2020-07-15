@@ -687,6 +687,12 @@ class SAEMTrainer:
             logger.logkv('train/elapsedtime', timeit.default_timer() - t_start)
 
 
+            ## log the current value of Q
+
+            Q = float(self._fapf.Q_MCEM(self._y, xsms[-1]))
+            logger.logkv('train/Q', Q)
+
+
             for callback in callbacks:
                 callback(k)
 
