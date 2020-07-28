@@ -31,20 +31,20 @@ def NLSsmoother(x0, criterion, solver_kwargs={'verbose': 2}):
 
     def loss(x):
         with torch.no_grad():
-            x = torch.tensor(x).view(1, T, xdim).to(x0.dtype)
+            x = torch.tensor(x).reshape(1, T, xdim).to(x0.dtype)
             loss = criterion.residuals(x)
         return loss.numpy()
 
     def jac(x):
-        x = torch.tensor(x).view(1, T, xdim)
+        x = torch.tensor(x).reshape(1, T, xdim)
         return criterion.jac_resid_x(x, sparse=True)
 
     with utils.Timer() as time:
         kwargs = dict(method='trf', loss='linear')
         kwargs.update(solver_kwargs)
-        opt_result = least_squares(loss, x0.view(-1).detach().numpy(), jac, **kwargs)
+        opt_result = least_squares(loss, x0.reshape(-1).detach().numpy(), jac, **kwargs)
 
-    x = torch.tensor(opt_result.x).view(1, T, xdim)
+    x = torch.tensor(opt_result.x).reshape(1, T, xdim)
 
     metrics = {'fun': float(opt_result.cost), 'success': opt_result.success, 'time': time.dt}
 

@@ -207,6 +207,8 @@ class GaussianObservationCriterion(SOSCriterion):
             # assuming full, timevarying
             self._Sig_y_inv_chol = Sig_y_inv.cholesky().unsqueeze(0)
             self._diagcov = False
+        else:
+            raise NotImplementedError
 
     def apply_inds(self, x, inds):
         if inds is not None:
@@ -359,9 +361,15 @@ class GaussianDynamicsCriterion(SOSCriterion):
             # assuming diagonal
             self._Sig_w_inv_chol = Sig_w_inv.sqrt().unsqueeze(0).unsqueeze(0)
             self._diagcov = True
-        else:
+        elif Sig_w_inv.ndim == 2:
             self._Sig_w_inv_chol = Sig_w_inv.cholesky().unsqueeze(0).unsqueeze(0)
             self._diagcov = False
+        elif Sig_w_inv.ndim == 3:
+            # assuming full, timevarying
+            self._Sig_w_inv_chol = Sig_w_inv.cholesky().unsqueeze(0)
+            self._diagcov = False
+        else:
+            raise NotImplementedError
 
     def apply_inds(self, x, inds):
         if inds is not None:
@@ -396,10 +404,10 @@ class GaussianDynamicsCriterion(SOSCriterion):
 
         if self._diagcov:
             jac_resid_x_ = self._Sig_w_inv_chol.unsqueeze(-1) * jac_dyn_x_
-            neyew = -torch.diag_embed(self._Sig_w_inv_chol.view(-1))
+            neyew = -torch.diag_embed(self._Sig_w_inv_chol.reshape(-1))
         else:
             jac_resid_x_ = self._Sig_w_inv_chol @ jac_dyn_x_
-            neyew = -self._Sig_w_inv_chol.view(-1)
+            neyew = -self._Sig_w_inv_chol
 
         J = jac_resid_x_.detach()
 
@@ -429,7 +437,10 @@ class GaussianDynamicsCriterion(SOSCriterion):
                                    shape=((T - 1) * n * B, T * n * B), dtype=np.float64)
 
                 # Create diagonal matrix with negative identity
-                E = (neyew.unsqueeze(0).repeat(B * (T - 1), 1, 1))
+                if self._Sig_w_inv_chol.ndim == 4:
+                    E = (neyew.reshape(T-1,n,n).repeat(B, 1, 1))
+                else:
+                    E = (neyew.reshape(1,n,n).repeat(B * (T - 1), 1, 1))
                 J2 = sp.bsr_matrix((E, idx + 1, idptr), shape=((T - 1) * n * B, T * n * B),
                                    dtype=np.float64)
 
