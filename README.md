@@ -4,6 +4,8 @@
 
 Official implementation of the the algorithm CE-EM and baseline Particle EM from "[Scalable Identification of Partially Observed Systems with Certainty-Equivalent EM](https://arxiv.org/abs/2006.11615)".
 
+[Website](https://sites.google.com/stanford.edu/ceem)
+
 ## Usage
 
 Ensure you are using at least Python 3.6
