@@ -59,6 +59,13 @@ def set_rng_seed(rng_seed: int) -> None:
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(rng_seed)
 
+def require_and_zero_grads(vs):
+    for v in vs:
+        v.requires_grad_(True)
+        try:
+            v.grad.zero_()
+        except AttributeError:
+            pass
 
 def disable_grad(vs):
     for v in vs:
