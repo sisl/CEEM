@@ -11,7 +11,7 @@ Official implementation of the the algorithm CE-EM and baseline Particle EM from
 Ensure you are using at least Python 3.6
 
 ```
-pip install -e .
+pip install CEEM
 ```
 
 Run `python -m pytest` to ensure everything works.
