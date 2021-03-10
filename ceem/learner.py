@@ -140,6 +140,8 @@ def ensure_default_torch_kwargs(opt_kwargs):
         opt_kwargs['nepochs'] = 100
     if 'max_grad_norm' not in opt_kwargs:
         opt_kwargs['max_grad_norm'] = 1.0
+    if 'nan_line_search' not in opt_kwargs:
+        opt_kwargs['nan_line_search'] = False
 
     return opt_kwargs
 
@@ -161,6 +163,8 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
 
     max_grad_norm = opt_kwargs.pop('max_grad_norm')
 
+    nan_line_search = opt_kwargs.pop('nan_line_search')
+
     opt = TORCH_OPTIMIZERS[method](params, **opt_kwargs)
 
     def closure():
@@ -173,6 +177,7 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
     start_gradnorm = utils.get_grad_norm(params)
 
     vparams0 = parameters_to_vector(params).clone().detach()
+    prev_params = vparams0
 
     with utils.Timer() as time:
         for epoch in range(nepochs):
@@ -184,6 +189,33 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
                 loss = closure()
                 torch.nn.utils.clip_grad_norm_(params, max_grad_norm)
                 opt.step()
+
+
+            if nan_line_search:
+                # check line search
+
+                n_ls  = 0
+
+                while True:
+
+                    next_params = parameters_to_vector(params).detach()
+
+                    del_params = next_params - prev_params
+
+                    with torch.no_grad():
+                        c = criterion(model, criterion_x, **crit_kwargs)
+
+                    if torch.isnan(c):
+                        next_params = prev_params + 0.5 * del_params
+                        vector_to_parameters(next_params, params)
+
+                        n_ls += 1
+
+                        if n_ls >= 100:
+                            logger.warn('Line search exceeding 100 iters...breaking.')
+                    else:
+                        break
+
 
             if epoch % 100 == 0:
                 print('Epoch %d, Loss %.3e' % (epoch, float(loss)))
