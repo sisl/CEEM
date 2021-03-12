@@ -157,6 +157,12 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
         tr_rho = opt_kwargs.pop('tr_rho')
         criterion = GroupCriterion([criterion, STRParamCriterion(tr_rho, params)])
 
+    scheduler_fn = None
+    if 'scheduler' in opt_kwargs:
+        scheduler_name = opt_kwargs.pop('scheduler', None)
+        scheduler_kwargs = opt_kwargs.pop('scheduler_kwargs')
+        scheduler_fn = getattr(torch.optim.lr_scheduler, scheduler_name)
+
     method = opt_kwargs.pop('method')
 
     nepochs = opt_kwargs.pop('nepochs')
@@ -166,6 +172,9 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
     nan_line_search = opt_kwargs.pop('nan_line_search')
 
     opt = TORCH_OPTIMIZERS[method](params, **opt_kwargs)
+
+    if scheduler_fn is not None:
+        scheduler = scheduler_fn(opt, **scheduler_kwargs)
 
     def closure():
         opt.zero_grad()
@@ -190,6 +199,8 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
                 torch.nn.utils.clip_grad_norm_(params, max_grad_norm)
                 opt.step()
 
+            if scheduler_fn is not None:
+                scheduler.step()
 
             if nan_line_search:
                 # check line search
