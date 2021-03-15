@@ -77,7 +77,7 @@ class CEEM:
         return xsm, metrics_l
 
     def step(self, xs, sys, smooth_solver_kwargs=None, learner_criterion_kwargs=None,
-             learner_opt_kwargs=None, subset=None):
+             learner_opt_kwargs=None, subset=None, hp_schedulers=None):
         """ Runs one step of CEEM algorithm
 
         Args:
@@ -118,6 +118,19 @@ class CEEM:
         if isinstance(learner_opt_kwargs, dict):
             learner_opt_kwargs = [learner_opt_kwargs for _ in range(len(self._learning_criteria))]
 
+        if hp_schedulers is not None:
+            if isinstance(hp_schedulers, dict):
+                hp_schedulers = [hp_schedulers for _ in range(len(self._learning_criteria))]
+            else:
+                assert len(hp_schedulers) == len(self._learning_criteria)
+
+        if hp_schedulers is not None:
+            for i in range(len(self._learning_criteria)):
+                for hp, scheduler in hp_schedulers[i].items():
+                    newhp = scheduler.step()
+                    learner_opt_kwargs[i][hp] = newhp
+        
+
         assert len(learner_criterion_kwargs) == len(self._learning_criteria)
         assert len(learner_opt_kwargs) == len(self._learning_criteria)
 
@@ -141,7 +154,7 @@ class CEEM:
         return xs, smooth_metrics, learn_metrics
 
     def train(self, xs, sys, nepochs, smooth_solver_kwargs=None, learner_criterion_kwargs=None,
-              learner_opt_kwargs=None, subset=None):
+              learner_opt_kwargs=None, subset=None, hp_schedulers=None):
         """ Runs one step of CEEM algorithm
 
         Args:
@@ -156,7 +169,8 @@ class CEEM:
         for epoch in range(nepochs):
             xs, smooth_metrics, learn_metrics = self.step(xs, sys, smooth_solver_kwargs,
                                                           learner_criterion_kwargs,
-                                                          learner_opt_kwargs, subset=subset)
+                                                          learner_opt_kwargs, subset=subset, 
+                                                          hp_schedulers=hp_schedulers)
 
             # Log all metrics. Run tensorboard to visualize
             log_kv_or_listkv(smooth_metrics, "smooth")

@@ -99,3 +99,27 @@ def get_grad_norm(params):
             total_norm += param_norm.item()**2
     total_norm = total_norm**(1. / 2)
     return total_norm
+
+class Scheduler:
+    def __init__(self, init_val, last_epoch=-1):
+        self.init_val = init_val
+        self.last_epoch = last_epoch
+        self._last_val = init_val
+
+    def step(self, epoch=None):
+        raise NotImplementedError()
+
+    def get_val(self):
+        return self._last_val
+
+class LambdaScheduler(Scheduler):
+    def __init__(self, init_val, val_lambda, last_epoch=-1):
+        self.val_lambda = val_lambda
+        super().__init__(init_val, last_epoch)
+
+    def step(self, epoch=None):
+        if epoch is not None:
+            self.last_epoch = epoch
+
+        self._last_val = self.init_val * self.val_lambda(self.last_epoch)
+        return self._last_val
