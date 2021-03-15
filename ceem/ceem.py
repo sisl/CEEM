@@ -120,10 +120,17 @@ class CEEM:
             learner_opt_kwargs = [learner_opt_kwargs for _ in range(len(self._learning_criteria))]
 
         if hp_schedulers is not None:
-            for i in range(len(self._learning_criteria)):
-                for hp, scheduler in hp_schedulers[i].items():
+            if isinstance(hp_schedulers, dict):
+                for hp, scheduler in hp_schedulers.items():
                     newhp = scheduler.step()
-                    learner_opt_kwargs[i][hp] = newhp
+                    for lok in learner_opt_kwargs:
+                        lok[hp] = newhp
+            else:
+                for i in range(len(self._learning_criteria)):
+                    for hp, scheduler in hp_schedulers[i].items():
+                        newhp = scheduler.step()
+                        learner_opt_kwargs[i][hp] = newhp
+        
 
         assert len(learner_criterion_kwargs) == len(self._learning_criteria)
         assert len(learner_opt_kwargs) == len(self._learning_criteria)
@@ -161,9 +168,7 @@ class CEEM:
           subset (int):
         """
         if hp_schedulers is not None:
-            if isinstance(hp_schedulers, dict):
-                hp_schedulers = [deepcopy(hp_schedulers) for _ in range(len(self._learning_criteria))]
-            else:
+            if not isinstance(hp_schedulers, dict):
                 assert len(hp_schedulers) == len(self._learning_criteria)
 
         for epoch in range(nepochs):
