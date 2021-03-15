@@ -100,7 +100,7 @@ def test_ceem():
     ceem = CEEM(smoothing_criteria, learning_criteria, learning_params, learning_opts,
                 epoch_callbacks, termination_callback, parallel=2)
 
-    hp_scheduler = {'tr_rho' : utils.LambdaScheduler(0.01, lambda x: 0.99**x)}
+    hp_scheduler = {'tr_rho' : utils.LambdaScheduler(0.01, lambda x: x)}
     # run CEEM
 
     x0 = torch.zeros_like(xtr)

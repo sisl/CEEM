@@ -3,6 +3,7 @@
 #
 from typing import Any, Callable, Tuple
 
+from copy import deepcopy
 import joblib
 import numpy as np
 import torch
@@ -119,17 +120,10 @@ class CEEM:
             learner_opt_kwargs = [learner_opt_kwargs for _ in range(len(self._learning_criteria))]
 
         if hp_schedulers is not None:
-            if isinstance(hp_schedulers, dict):
-                hp_schedulers = [hp_schedulers for _ in range(len(self._learning_criteria))]
-            else:
-                assert len(hp_schedulers) == len(self._learning_criteria)
-
-        if hp_schedulers is not None:
             for i in range(len(self._learning_criteria)):
                 for hp, scheduler in hp_schedulers[i].items():
                     newhp = scheduler.step()
                     learner_opt_kwargs[i][hp] = newhp
-        
 
         assert len(learner_criterion_kwargs) == len(self._learning_criteria)
         assert len(learner_opt_kwargs) == len(self._learning_criteria)
@@ -166,6 +160,12 @@ class CEEM:
           learner_opt_kwargs (dict):
           subset (int):
         """
+        if hp_schedulers is not None:
+            if isinstance(hp_schedulers, dict):
+                hp_schedulers = [deepcopy(hp_schedulers) for _ in range(len(self._learning_criteria))]
+            else:
+                assert len(hp_schedulers) == len(self._learning_criteria)
+
         for epoch in range(nepochs):
             xs, smooth_metrics, learn_metrics = self.step(xs, sys, smooth_solver_kwargs,
                                                           learner_criterion_kwargs,
