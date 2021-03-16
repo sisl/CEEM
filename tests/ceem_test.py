@@ -100,13 +100,14 @@ def test_ceem():
     ceem = CEEM(smoothing_criteria, learning_criteria, learning_params, learning_opts,
                 epoch_callbacks, termination_callback, parallel=2)
 
+    hp_scheduler = {'tr_rho' : utils.LambdaScheduler(0.01, lambda x: x)}
     # run CEEM
 
     x0 = torch.zeros_like(xtr)
 
     ceem.train(xs=x0, sys=sys, nepochs=150, 
         smooth_solver_kwargs = smooth_solver_kwargs,
-        learner_opt_kwargs=learner_opt_kwargs, subset=1)
+        learner_opt_kwargs=learner_opt_kwargs, subset=1, hp_schedulers=hp_scheduler)
 
     assert tcb(0)
     if tcb(0):

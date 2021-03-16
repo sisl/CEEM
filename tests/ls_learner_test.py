@@ -45,7 +45,9 @@ def test_learner():
     vector_to_parameters(vparams, params)
 
     opt_result = learner(sys, [dyncrit], [x], ['torch_minimize'], [params], [{}], opt_kwargs_list=[{
-        'nan_line_search':True
+        'nan_line_search': True,
+        'scheduler': 'ExponentialLR',
+        'scheduler_kwargs': {'gamma': 0.99,}
     }])[0]
 
     params = list(sys.parameters())[:2]
