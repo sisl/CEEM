@@ -120,6 +120,7 @@ class LambdaScheduler(Scheduler):
     def step(self, epoch=None):
         if epoch is not None:
             self.last_epoch = epoch
-
+        else:
+            self.last_epoch += 1
         self._last_val = self.init_val * self.val_lambda(self.last_epoch)
         return self._last_val
