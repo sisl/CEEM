@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="CEEM",
-    version="0.0.3",
+    version="0.0.4",
     packages=find_packages(),
     description="Official implementation of CE-EM algorithm",
     long_description=long_description,
