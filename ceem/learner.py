@@ -10,6 +10,8 @@ from scipy.optimize import least_squares, minimize
 from torch.autograd import backward
 from torch.nn.utils import parameters_to_vector, vector_to_parameters
 
+from ceem import logger
+
 from ceem import utils
 from ceem.opt_criteria import GroupCriterion, STRParamCriterion
 
@@ -202,6 +204,8 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
             if scheduler_fn is not None:
                 scheduler.step()
 
+            assert not torch.isnan(loss), 'loss is nan'
+
             if nan_line_search:
                 # check line search
 
@@ -224,6 +228,8 @@ def torch_minimize(criterion, model, criterion_x, params, crit_kwargs, opt_kwarg
 
                         if n_ls >= 100:
                             logger.warn('Line search exceeding 100 iters...breaking.')
+                            assert False, 'line search failed.'
+
                     else:
                         break
 
